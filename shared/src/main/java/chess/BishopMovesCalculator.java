@@ -14,7 +14,7 @@ public class BishopMovesCalculator implements PieceMovesCalculator {
         //Down-right = (-1,1)
         //Down-left = (-1,-1)
         int[][] directions = {
-                {1,1},{1,-1},{-1,1},{-1,-1}
+                {1,1},{-1,1},{-1,-1},{1,-1}
         };
 
         //TO DO: Loop trough each direction
@@ -26,28 +26,35 @@ public class BishopMovesCalculator implements PieceMovesCalculator {
             int newBishopRow = position.getRow() + rowDelta;
             int newBishopCol = position.getColumn() + colDelta;
 
-            //TO DO: For each direction, keep moving until you hit something
+            //For each direction, keep moving until you hit something
             while (isValidPosition(newBishopRow, newBishopCol)) {
-                //TO DO: Check what's at this square
-                //TO DO: Decide if we can move there
-                //TO DO: Add the move
-                //TO DO: Decide if we should we keep going or stop
-                ChessPiece pieceAtNewPosition = board.getPiece(new ChessPosition(newBishopRow, newBishopCol));
+
+                ChessPosition newPosition = new ChessPosition(newBishopRow, newBishopCol);
+                ChessPiece pieceAtNewPosition = board.getPiece(newPosition);
                 ChessGame.TeamColor color = board.getPiece(position).getTeamColor();
 
-                //The new place in the board is null
+                //The new position in the board is null meaning there is no piece
                 if (pieceAtNewPosition == null){
                     //Add the piece
+                    ChessMove newMove = new ChessMove(position, newPosition, null);
+                    moves.add(newMove);
+
                 }
                 //The color of the Bishop is not the same as the piece in the board
+                //This is an enemy piece. You add the move and then stop.
                 else if (pieceAtNewPosition.getTeamColor() != color) {
                     //Add the piece
+                    ChessMove newMove = new ChessMove(position, newPosition, null);
+                    moves.add(newMove);
+                    break;
 
-                } else {
-                    //Do nothing
+                }
+                //The piece is from your same team. You stop
+                else {
+                    break;
                 }
 
-
+                //Move to the next square
                 newBishopRow = newBishopRow + rowDelta;
                 newBishopCol = newBishopCol + colDelta;
             }
@@ -57,7 +64,6 @@ public class BishopMovesCalculator implements PieceMovesCalculator {
         return moves;
     }
 
-    //TO DO: Add valid moves to the collection
     //This method checks if we are at the edge of the board
     private boolean isValidPosition (int row, int col) {
         return row >=1 && row <= 8 && col >=1 && col <= 8;
