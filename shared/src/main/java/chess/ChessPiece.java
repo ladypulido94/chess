@@ -62,7 +62,7 @@ public class ChessPiece {
             case KNIGHT -> new KnightMovesCalculator();
             case QUEEN -> new QueenMovesCalculator();
             case KING -> new KingMovesCalculator();
-            case PAWN -> null; //TO DO: create later
+            case PAWN -> new PawnMovesCalculator();
         };
 
         if(calculator == null){

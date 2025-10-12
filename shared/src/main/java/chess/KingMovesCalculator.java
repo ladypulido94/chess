@@ -23,7 +23,7 @@ public class KingMovesCalculator implements PieceMovesCalculator{
             int newKingCol = position.getColumn() + colDelta;
 
             //Checking if the square didn't pass the edge of the board
-            if(isValidMoves(newKingRow, newKingCol)){
+            if(isValidPosition(newKingRow, newKingCol)){
                 ChessPosition newPosition = new ChessPosition(newKingRow, newKingCol);
                 ChessPiece pieceAtNewPosition = board.getPiece(newPosition);
 
@@ -44,7 +44,7 @@ public class KingMovesCalculator implements PieceMovesCalculator{
         return moves;
     }
 
-    private boolean isValidMoves(int row, int col){
+    private boolean isValidPosition(int row, int col){
         return row >= 1 && row <= 8 && col >= 1 && col <= 8;
     }
 }
