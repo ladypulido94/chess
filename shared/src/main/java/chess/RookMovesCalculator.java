@@ -8,6 +8,7 @@ public class RookMovesCalculator implements PieceMovesCalculator{
     @Override
     public Collection<ChessMove> pieceMoves(ChessBoard board, ChessPosition position) {
         Collection<ChessMove> moves = new ArrayList<>();
+        ChessGame.TeamColor color = board.getPiece(position).getTeamColor();
 
         int[][] directions = {
                 {0,1},{0,-1},{-1,0},{1,0}
@@ -26,7 +27,6 @@ public class RookMovesCalculator implements PieceMovesCalculator{
             while(isValidPosition(newRookRow, newRookCol)){
                 ChessPosition newPosition = new ChessPosition(newRookRow, newRookCol);
                 ChessPiece pieceAtNewPosition = board.getPiece(newPosition);
-                ChessGame.TeamColor color = board.getPiece(position).getTeamColor();
 
                 //The square is empty. Add the move
                 if (pieceAtNewPosition == null){

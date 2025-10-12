@@ -8,6 +8,7 @@ public class BishopMovesCalculator implements PieceMovesCalculator {
     @Override
     public Collection<ChessMove> pieceMoves(ChessBoard board, ChessPosition position) {
         Collection<ChessMove> moves = new ArrayList<>();
+        ChessGame.TeamColor color = board.getPiece(position).getTeamColor();
 
         //Up-right = (1,1)
         //Up-left = (1,-1)
@@ -31,7 +32,6 @@ public class BishopMovesCalculator implements PieceMovesCalculator {
 
                 ChessPosition newPosition = new ChessPosition(newBishopRow, newBishopCol);
                 ChessPiece pieceAtNewPosition = board.getPiece(newPosition);
-                ChessGame.TeamColor color = board.getPiece(position).getTeamColor();
 
                 //The new position in the board is null meaning there is no piece
                 if (pieceAtNewPosition == null){
@@ -40,7 +40,7 @@ public class BishopMovesCalculator implements PieceMovesCalculator {
                     moves.add(newMove);
 
                 }
-                //The color of the Bishop is not the same as the piece in the board
+
                 //This is an enemy piece. You add the move and then stop.
                 else if (pieceAtNewPosition.getTeamColor() != color) {
                     //Add the piece
