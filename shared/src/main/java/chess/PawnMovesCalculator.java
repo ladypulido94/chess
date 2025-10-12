@@ -74,6 +74,7 @@ public class PawnMovesCalculator implements PieceMovesCalculator{
             int leftRow = currentRow + direction;
             int leftCol = currentCol - 1;
 
+            //Check if the left diagonal is off the board
             if(isValidPosition(leftRow, leftCol)){
                 ChessPosition leftDiagonalPosition = new ChessPosition(leftRow, leftCol);
                 ChessPiece leftDiagonalPiece = board.getPiece(leftDiagonalPosition);
@@ -88,12 +89,15 @@ public class PawnMovesCalculator implements PieceMovesCalculator{
             int rightRow = currentRow + direction;
             int rightCol = currentCol + 1;
 
-            ChessPosition rightDiagonalPosition = new ChessPosition(rightRow, rightCol);
-            ChessPiece rightDiagonalPiece = board.getPiece(rightDiagonalPosition);
+            //Check if the right diagonal is off the board
+            if(isValidPosition(rightRow, rightCol)){
+                ChessPosition rightDiagonalPosition = new ChessPosition(rightRow, rightCol);
+                ChessPiece rightDiagonalPiece = board.getPiece(rightDiagonalPosition);
 
-            //Checking that there is an enemy piece to add the move
-            if(rightDiagonalPiece != null && piece.getTeamColor() != rightDiagonalPiece.getTeamColor()){
-                addMoveWithPromotion(moves, position, rightDiagonalPosition, rightRow, promotionRow);
+                //Checking that there is an enemy piece to add the move
+                if(rightDiagonalPiece != null && piece.getTeamColor() != rightDiagonalPiece.getTeamColor()){
+                    addMoveWithPromotion(moves, position, rightDiagonalPosition, rightRow, promotionRow);
+                }
             }
 
         }
