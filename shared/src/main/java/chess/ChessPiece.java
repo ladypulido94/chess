@@ -61,7 +61,7 @@ public class ChessPiece {
             case ROOK -> new RookMovesCalculator();
             case KNIGHT -> new KnightMovesCalculator();
             case QUEEN -> null; //TO DO: create later
-            case KING -> null; //TO DO: create later
+            case KING -> new KingMovesCalculator(); //TO DO: create later
             case PAWN -> null; //TO DO: create later
         };
 
