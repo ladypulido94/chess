@@ -44,7 +44,42 @@ public class ChessBoard {
      * (How the game of chess normally starts)
      */
     public void resetBoard() {
-        throw new RuntimeException("Not implemented");
+        //Place White Pawns
+        for(int col = 1; col <= 8; col++){
+            ChessPosition pawnPosition = new ChessPosition(2,col);
+            addPiece(pawnPosition, new ChessPiece(ChessGame.TeamColor.WHITE, ChessPiece.PieceType.PAWN));
+        }
+
+        //Place Black Pawns
+        for (int col = 1; col <= 8; col++){
+            ChessPosition pawnPosition = new ChessPosition(7, col);
+            addPiece(pawnPosition, new ChessPiece(ChessGame.TeamColor.BLACK, ChessPiece.PieceType.PAWN));
+        }
+
+        //Place the other pieces
+        ChessPiece.PieceType[] backRowPieces = {
+                ChessPiece.PieceType.ROOK,
+                ChessPiece.PieceType.KNIGHT,
+                ChessPiece.PieceType.BISHOP,
+                ChessPiece.PieceType.QUEEN,
+                ChessPiece.PieceType.KING,
+                ChessPiece.PieceType.BISHOP,
+                ChessPiece.PieceType.KNIGHT,
+                ChessPiece.PieceType.ROOK
+        };
+
+        for(int col = 1; col <= 8; col++){
+            ChessPiece.PieceType piece = backRowPieces[col - 1];
+            ChessPosition whitePiecePosition = new ChessPosition(1, col);
+            ChessPosition blackPiecePosition = new ChessPosition(8, col);
+
+            //White Pieces
+            addPiece(whitePiecePosition, new ChessPiece(ChessGame.TeamColor.WHITE, piece));
+
+            //Black Pieces
+            addPiece(blackPiecePosition, new ChessPiece(ChessGame.TeamColor.BLACK, piece));
+
+        }
     }
 
     @Override
