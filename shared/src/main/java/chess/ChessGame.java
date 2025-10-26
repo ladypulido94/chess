@@ -77,10 +77,9 @@ public class ChessGame {
 
             //Check if this leave the king in check
             //TO DO: Is my king in check?
-
-            //Add to valid moves if the king is safe
-            //TO DO: If king not in check, add to validMoves
             if(!isInCheck(movingPiece.getTeamColor())){
+                //Add to valid moves if the king is safe
+                //TO DO: If king not in check, add to validMoves
                 validMoves.add(move);
             }
 
@@ -170,12 +169,24 @@ public class ChessGame {
 
         //Do they have any legal moves?
         //TO DO: Loop through all the pieces in this team
-        //TO DO: For each piece, get all possible moves
-        //TO DO: For each move, try and see if it gets them out of check
-        //TO DO: If the move gets them out of check, return false
+        for(int row = 1; row <= 8; row++){
+            for (int col = 1; col <= 8; col++){
+                ChessPosition position = new ChessPosition(row, col);
+                ChessPiece pieceAtPosition = board.getPiece(position);
 
+                //TO DO: For each piece, get all possible moves
+                if(pieceAtPosition != null && pieceAtPosition.getTeamColor() == teamColor){
+                    Collection<ChessMove> moves = validMoves(position);
 
+                    //TO DO: For each move, try and see if it gets them out of check
+                    if(!moves.isEmpty()){
+                        //TO DO: If the move gets them out of check, return false
+                        return false;
+                    }
+                }
 
+            }
+        }
 
         return true;
     }
