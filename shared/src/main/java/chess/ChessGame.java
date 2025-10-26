@@ -123,6 +123,13 @@ public class ChessGame {
 
         ChessPiece movingPiece = board.getPiece(move.getStartPosition());
         board.addPiece(move.getEndPosition(), movingPiece);
+
+        if(move.getPromotionPiece() != null){
+            ChessPiece promotionPiece = new ChessPiece(movingPiece.getTeamColor(), move.getPromotionPiece());
+
+            board.addPiece(move.getEndPosition(), promotionPiece);
+        }
+
         board.addPiece(move.getStartPosition(), null);
 
         if(getTeamTurn() == TeamColor.WHITE){
