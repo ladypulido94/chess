@@ -1,5 +1,6 @@
 package chess;
 
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Objects;
 
@@ -54,7 +55,43 @@ public class ChessGame {
      * startPosition
      */
     public Collection<ChessMove> validMoves(ChessPosition startPosition) {
-        throw new RuntimeException("Not implemented");
+        Collection<ChessMove> validMoves = new ArrayList<>();
+        ChessPiece piece = board.getPiece(startPosition);
+
+        if (piece == null){
+            return null;
+        }
+
+        //Get all the possible moves the piece can make
+        Collection<ChessMove> possibleMoves = piece.pieceMoves(board, startPosition);
+
+        //For each possible move, check if it leaves the King in check
+        for(ChessMove move: possibleMoves){
+            ChessPiece movingPiece = board.getPiece(move.getStartPosition());
+            ChessPiece capturedPiece = board.getPiece(move.getEndPosition());
+
+            //Make the move
+            //TO DO: How do you move the piece on the board?
+            board.addPiece(move.getEndPosition(), movingPiece);
+            board.addPiece(move.getStartPosition(), null);
+
+            //Check if this leave the king in check
+            //TO DO: Is my king in check?
+
+            //Add to valid moves if the king is safe
+            //TO DO: If king not in check, add to validMoves
+            if(!isInCheck(movingPiece.getTeamColor())){
+                validMoves.add(move);
+            }
+
+            //Undo the move
+            //TO DO: Move the pieces back
+            board.addPiece(move.getStartPosition(), movingPiece);
+            board.addPiece(move.getEndPosition(), capturedPiece);
+
+        }
+
+        return validMoves;
     }
 
     /**
@@ -126,7 +163,21 @@ public class ChessGame {
      * @return True if the specified team is in checkmate
      */
     public boolean isInCheckmate(TeamColor teamColor) {
-        return false;
+        //Are the in check?
+        if(!isInCheck(teamColor)){
+            return false;
+        }
+
+        //Do they have any legal moves?
+        //TO DO: Loop through all the pieces in this team
+        //TO DO: For each piece, get all possible moves
+        //TO DO: For each move, try and see if it gets them out of check
+        //TO DO: If the move gets them out of check, return false
+
+
+
+
+        return true;
     }
 
     /**
