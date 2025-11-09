@@ -15,6 +15,8 @@ public class MemoryDataAccess implements DataAccess{
     @Override
     public void clear() {
         users.clear();
+        games.clear();
+        authTokens.clear();
     }
 
     @Override
@@ -27,32 +29,21 @@ public class MemoryDataAccess implements DataAccess{
 
     @Override
     public UserData getUser(String username) throws DataAccessException{
-        UserData user = users.get(username);
-
-        if(user == null){
-            throw new DataAccessException("User doesn't exist");
-        }
-        return user;
+        return users.get(username);
     }
 
     @Override
     public int addGame(GameData game) throws DataAccessException{
-        if (games.containsKey(game.gameID())){
-            throw new DataAccessException("Game already exist");
-        }
-        games.put(game.gameID(),game);
-
-        return game.gameID();
+        int newGameId = nextGameId++;
+        GameData newGame = new GameData(newGameId, game.whiteUsername(), game.blackUsername(),
+                game.gameName(), game.game());
+        games.put(newGameId, newGame);
+        return newGameId;
     }
 
     @Override
     public GameData getGame(int gameId) throws DataAccessException{
-        GameData game = games.get(gameId);
-        if (game == null){
-            throw new DataAccessException("Game doesn't exist");
-        }
-
-        return game;
+        return games.get(gameId);
     }
 
     @Override
@@ -70,7 +61,7 @@ public class MemoryDataAccess implements DataAccess{
     }
 
     @Override
-    public void addAuth(AuthData authToken) throws DataAccessException{
+    public void addAuthToken(AuthData authToken) throws DataAccessException{
         if(authTokens.containsKey(authToken.authToken())){
             throw new DataAccessException("AuthToken already exists");
         }
@@ -79,15 +70,11 @@ public class MemoryDataAccess implements DataAccess{
 
     @Override
     public AuthData getAuthToken(String authToken) throws DataAccessException{
-        AuthData token = authTokens.get(authToken);
-        if(token == null){
-            throw new DataAccessException("AuthToken doesn't exist");
-        }
-        return token;
+        return authTokens.get(authToken);
     }
 
     @Override
-    public void deleteAuth(String authToken) throws DataAccessException{
+    public void deleteAuthToken(String authToken) throws DataAccessException{
         if(!authTokens.containsKey(authToken)){
             throw new DataAccessException("AuthToken doesn't exists");
         }

@@ -1,6 +1,7 @@
 package dataaccess;
 
 import chess.ChessGame;
+import model.AuthData;
 import model.GameData;
 import model.UserData;
 import org.junit.jupiter.api.BeforeEach;
@@ -43,36 +44,25 @@ public class DAOTest {
     @Test
     public void positiveAddGame() throws DataAccessException{
         ChessGame chessGame = new ChessGame();
-        GameData game = new GameData(12, "testWhite", "testBlack", "testGame", chessGame);
-        dao.addGame(game);
-        GameData retrieve = dao.getGame(12);
-        assertEquals(game, retrieve);
-    }
+        GameData game = new GameData(0, "testWhite", "testBlack", "testGame", chessGame);
+        int generateId = dao.addGame(game);
 
-    @Test
-    public void negativeAddGame(){
-        ChessGame chessGame = new ChessGame();
-        GameData game = new GameData(12, "testWhite", "testBlack", "testGame", chessGame);
-
-        assertDoesNotThrow(() -> dao.addGame(game));
-        assertThrows(DataAccessException.class, () -> dao.addGame(game));
-
+        GameData retrieve = dao.getGame(generateId);
+        assertEquals("testWhite", retrieve.whiteUsername());
+        assertEquals("testBlack", retrieve.blackUsername());
     }
 
     @Test
     public void positiveGetAllGames() throws DataAccessException{
         ChessGame chessGame = new ChessGame();
-        GameData game = new GameData(12, "testWhite", "testBlack", "testGame", chessGame);
+        GameData game = new GameData(0, "testWhite", "testBlack", "testGame", chessGame);
         dao.addGame(game);
-        GameData game1 = new GameData(13, "testWhite1", "testBlack1", "testGame1", chessGame);
+        GameData game1 = new GameData(0, "testWhite1", "testBlack1", "testGame1", chessGame);
         dao.addGame(game1);
-        GameData game2 = new GameData(14, "testWhite2", "testBlack2", "testGame2", chessGame);
+        GameData game2 = new GameData(0, "testWhite2", "testBlack2", "testGame2", chessGame);
         dao.addGame(game2);
         Collection<GameData> allGames = dao.getAllGames();
         assertEquals(3, allGames.size());
-        assertTrue(allGames.contains(game));
-        assertTrue(allGames.contains(game1));
-        assertTrue(allGames.contains(game2));
 
     }
 
@@ -83,34 +73,60 @@ public class DAOTest {
     }
 
     @Test
-    public void positiveUpdateGame() {
+    public void positiveUpdateGame() throws DataAccessException{
+        ChessGame chessGame = new ChessGame();
+        GameData game = new GameData(12, "testWhite", "testBlack", "testGame", chessGame);
+        dao.addGame(game);
+        int gameId = dao.addGame(game);
+        GameData updatedGame = new GameData(gameId,"testWhite", "updatedBlack", "testGame", chessGame);
+        dao.updateGame(updatedGame);
+        GameData result = dao.getGame(gameId);
+
+        assertEquals("updatedBlack", result.blackUsername());
+        assertEquals("testWhite", result.whiteUsername());
 
     }
 
     @Test
-    public void negativeUpdateGame() {
+    public void negativeUpdateGame() throws DataAccessException{
+        ChessGame chessGame = new ChessGame();
+        GameData game = new GameData(12, "testWhite", "testBlack", "testGame", chessGame);
+
+        assertThrows(DataAccessException.class, () -> dao.updateGame(game));
 
     }
 
     //AUTH DAO
 
     @Test
-    public void positiveAddAuth() {
+    public void positiveAddAuth() throws DataAccessException{
+        AuthData authToken = new AuthData("1h3", "test");
+        dao.addAuthToken(authToken);
+        AuthData result = dao.getAuthToken("1h3");
 
+        assertEquals(authToken, result);
     }
 
     @Test
-    public void negativeAddAuth() {
+    public void negativeAddAuth() throws DataAccessException{
+        AuthData authToken = new AuthData("1h3", "test");
+        dao.addAuthToken(authToken);
 
+        assertThrows(DataAccessException.class, () -> dao.addAuthToken(authToken));
     }
 
     @Test
-    public void positiveDeleteAuth() {
+    public void positiveDeleteAuth() throws DataAccessException{
+        AuthData authToken = new AuthData("1h3","test");
+        dao.addAuthToken(authToken);
+        dao.deleteAuthToken("1h3");
 
+        assertNull(dao.getAuthToken("1h3"));
     }
 
     @Test
     public void negativeDeleteAuth() {
+        assertThrows(DataAccessException.class, () -> dao.deleteAuthToken("No Token"));
 
     }
 
