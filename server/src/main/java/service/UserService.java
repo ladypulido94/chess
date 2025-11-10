@@ -47,7 +47,7 @@ public class UserService {
         UserData existingUser = dataAccess.getUser(user.username());
 
         if(!user.password().equals(existingUser.password())){
-            throw new DataAccessException("Error: User not found");
+            throw new DataAccessException("Error: Incorrect Password");
         }
 
         String authenticator = UUID.randomUUID().toString();
