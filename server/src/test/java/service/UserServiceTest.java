@@ -77,4 +77,19 @@ public class UserServiceTest {
         assertThrows(DataAccessException.class, () -> userService.login(wrongPassword));
 
     }
+
+    @Test
+    public void positiveLogoutService() throws DataAccessException{
+        UserData user = new UserData("test","testPassword","test@gmail.com");
+        userService.register(user);
+        AuthData auth = userService.login(user);
+        assertDoesNotThrow(() -> userService.logout(auth.authToken()));
+        assertNull(dao.getAuthToken(auth.authToken()));
+    }
+
+    @Test
+    public void negativeLogoutService() throws DataAccessException {
+        String invalidToken = "h1er";
+        assertThrows(DataAccessException.class, () -> userService.logout(invalidToken));
+    }
 }

@@ -46,6 +46,10 @@ public class UserService {
 
         UserData existingUser = dataAccess.getUser(user.username());
 
+        if (existingUser == null) {
+            throw new DataAccessException("Error: unauthorized");
+        }
+
         if(!user.password().equals(existingUser.password())){
             throw new DataAccessException("Error: Incorrect Password");
         }
@@ -58,7 +62,8 @@ public class UserService {
     }
 
     public void logout (String authToken) throws DataAccessException {
-        if (authToken == null || authToken.isEmpty()){
+        AuthData token = dataAccess.getAuthToken(authToken);
+        if (token == null){
             throw new DataAccessException("Error: AuthToken doesn't exist");
         }
 
