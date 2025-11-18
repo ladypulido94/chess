@@ -29,7 +29,7 @@ public class GameServiceTests {
         UserData user = new UserData("test", "testPassword","test@test.com");
         AuthData authToken = userService.register(user);
 
-        int gameId = gameService.createGame(authToken, "testGame");
+        int gameId = gameService.createGame(authToken.authToken(), "testGame");
         assertTrue(gameId > 0);
         GameData game = dao.getGame(gameId);
         assertNotNull(game);
@@ -41,10 +41,10 @@ public class GameServiceTests {
     public void negativeCreateGame() throws DataAccessException{
         AuthData wrongToken = new AuthData("invalidToken", "user");
         assertThrows(DataAccessException.class,
-                () -> gameService.createGame(wrongToken, "testName"));
+                () -> gameService.createGame(wrongToken.authToken(), "testName"));
         UserData user = new UserData("test", "testPassword", "test@test.com");
         AuthData authToken = userService.register(user);
-        assertThrows(DataAccessException.class, () -> gameService.createGame(authToken, ""));
+        assertThrows(DataAccessException.class, () -> gameService.createGame(authToken.authToken(), ""));
 
     }
 
@@ -53,7 +53,7 @@ public class GameServiceTests {
         UserData user = new UserData("test", "testPassword","test@test.com");
         AuthData token = userService.register(user);
 
-        int gameId = gameService.createGame(token, "testGame");
+        int gameId = gameService.createGame(token.authToken(), "testGame");
 
         assertDoesNotThrow(() -> gameService.joinGame(token.authToken(),"white", gameId));
 
@@ -68,7 +68,7 @@ public class GameServiceTests {
         UserData user = new UserData("test", "testPassword", "test@test.com");
         AuthData token = userService.register(user);
 
-        int gameId = gameService.createGame(token, "testGame");
+        int gameId = gameService.createGame(token.authToken(), "testGame");
 
         assertThrows(DataAccessException.class, () -> gameService.joinGame(token.authToken(),"purple",gameId));
     }
@@ -78,9 +78,9 @@ public class GameServiceTests {
         UserData user = new UserData("test", "testPassword", "test@test.com");
         AuthData token = userService.register(user);
 
-        gameService.createGame(token, "testGame1");
-        gameService.createGame(token, "testGame2");
-        gameService.createGame(token, "testGame3");
+        gameService.createGame(token.authToken(), "testGame1");
+        gameService.createGame(token.authToken(), "testGame2");
+        gameService.createGame(token.authToken(), "testGame3");
 
         Collection<GameData> games = gameService.listAllGames(token.authToken());
 

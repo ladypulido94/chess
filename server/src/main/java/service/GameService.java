@@ -16,14 +16,14 @@ public class GameService {
         this.dataAccess = dataAccess;
     }
 
-    public int createGame(AuthData token, String gameName) throws DataAccessException{
+    public int createGame(String token, String gameName) throws DataAccessException{
 
-        if(token.authToken() == null || token.authToken().isEmpty()
-                || dataAccess.getAuthToken(token.authToken()) == null){
-            throw new DataAccessException("Error: Unauthorize");
+        if(token == null || token.isEmpty()
+                || dataAccess.getAuthToken(token) == null){
+            throw new DataAccessException("Error: Unauthorized");
         }
 
-        if(gameName.isEmpty()){
+        if(gameName == null || gameName.isEmpty()){
             throw new DataAccessException("Error: Bad Request");
         }
 
@@ -45,13 +45,16 @@ public class GameService {
             throw new DataAccessException("Error: Bad Request");
         }
 
-        playerColor = playerColor.toUpperCase();
-
-        if(playerColor == null || (!playerColor.equals("WHITE") && !playerColor.equals("BLACK"))){
+        if (playerColor == null || playerColor.isEmpty()){
             throw new DataAccessException("Error: Bad Request");
         }
 
         String color = playerColor.toUpperCase();
+
+        if(!color.equals("WHITE") && !color.equals("BLACK")){
+            throw new DataAccessException("Error: Bad Request");
+        }
+
 
         if(color.equals("WHITE") && game.whiteUsername() != null){
             throw new DataAccessException("Error: Already Taken");

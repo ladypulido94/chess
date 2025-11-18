@@ -47,11 +47,11 @@ public class UserService {
         UserData existingUser = dataAccess.getUser(user.username());
 
         if (existingUser == null) {
-            throw new DataAccessException("Error: unauthorized");
+            throw new DataAccessException("Error: Unauthorized");
         }
 
         if(!user.password().equals(existingUser.password())){
-            throw new DataAccessException("Error: Incorrect Password");
+            throw new DataAccessException("Error: Unauthorized");
         }
 
         String authenticator = UUID.randomUUID().toString();
