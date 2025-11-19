@@ -1,5 +1,6 @@
 package dataaccess;
 
+import com.google.gson.Gson;
 import model.AuthData;
 import model.GameData;
 import model.UserData;
@@ -8,6 +9,7 @@ import org.mindrot.jbcrypt.BCrypt;
 import java.sql.SQLException;
 import java.util.Collection;
 import java.util.List;
+import java.sql.Statement;
 
 public class MySQLDataAccess implements DataAccess{
 
@@ -145,6 +147,32 @@ public class MySQLDataAccess implements DataAccess{
 
     @Override
     public int addGame(GameData game) throws DataAccessException {
+        Gson gson = new Gson();
+        String gameJson = gson.toJson(game.game());
+
+        try(var conn = DatabaseManager.getConnection()){
+            String insertGame = """
+                    INSERT INTO game (whiteUsername, blackUsername, gameName, game) VALUES (?,?,?,?)
+                    """;
+
+            try(var preparedStatement = conn.prepareStatement(insertGame, Statement.RETURN_GENERATED_KEYS)){
+                preparedStatement.setString(1, game.whiteUsername());
+                preparedStatement.setString(2, game.blackUsername());
+                preparedStatement.setString(3, game.gameName());
+                preparedStatement.setString(4, gameJson);
+
+                preparedStatement.executeUpdate();
+
+                try(var rs = preparedStatement.getGeneratedKeys()){
+                    if(rs.next()){
+                        return rs.getInt(1);
+                    }
+                }
+            }
+
+        } catch (SQLException e) {
+            throw new DataAccessException("Unable to add game", e);
+        }
         return 0;
     }
 
