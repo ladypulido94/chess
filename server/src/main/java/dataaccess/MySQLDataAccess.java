@@ -3,6 +3,7 @@ package dataaccess;
 import model.AuthData;
 import model.GameData;
 import model.UserData;
+import org.mindrot.jbcrypt.BCrypt;
 
 import java.sql.SQLException;
 import java.util.Collection;
@@ -90,11 +91,55 @@ public class MySQLDataAccess implements DataAccess{
 
     @Override
     public void addUser(UserData user) throws DataAccessException {
+        if(getUser(user.username()) != null){
+            throw new DataAccessException("User already exists");
+        }
+
+        String hashPassword = BCrypt.hashpw(user.password(), BCrypt.gensalt());
+
+        try (var conn = DatabaseManager.getConnection()){
+            String insertUser = """
+                    INSERT INTO user (username, password, email) VALUES (?,?,?)
+                    """;
+
+            try (var preparedStatement = conn.prepareStatement(insertUser)){
+                preparedStatement.setString(1, user.username());
+                preparedStatement.setString(2, hashPassword);
+                preparedStatement.setString(3, user.email());
+
+                preparedStatement.executeUpdate();
+            }
+
+        } catch (SQLException e){
+            throw new DataAccessException("Unable to add user", e);
+        }
 
     }
 
     @Override
     public UserData getUser(String username) throws DataAccessException {
+        try (var conn = DatabaseManager.getConnection()) {
+
+            try(var preparedStatement = conn.prepareStatement("SELECT username, password, email " +
+                    "FROM user" +
+                    "WHERE username = ?")){
+                preparedStatement.setString(1, username);
+
+                try(var rs = preparedStatement.executeQuery()){
+                    if(rs.next()){
+                        String user = rs.getString("username");
+                        String password = rs.getString("password");
+                        String email = rs.getString("email");
+
+                        UserData userData = new UserData(user, password, email);
+                        return userData;
+                    }
+                }
+            }
+
+        } catch (SQLException e){
+            throw new DataAccessException("Unable to find user", e);
+        }
         return null;
     }
 
