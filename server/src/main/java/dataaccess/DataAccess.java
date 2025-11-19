@@ -7,7 +7,7 @@ import model.UserData;
 import java.util.Collection;
 
 public interface DataAccess {
-    void clear();
+    void clear() throws DataAccessException;
     void addUser(UserData user) throws DataAccessException;
     UserData getUser(String username) throws DataAccessException;
     int addGame(GameData game) throws DataAccessException;

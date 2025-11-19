@@ -3,6 +3,7 @@ package server;
 import dataaccess.DataAccess;
 import dataaccess.DataAccessException;
 import dataaccess.MemoryDataAccess;
+import dataaccess.MySQLDataAccess;
 import io.javalin.*;
 import io.javalin.json.JavalinGson;
 import model.AuthData;
@@ -23,19 +24,24 @@ public class Server {
     private final GameService gameService;
 
     public Server() {
-        DataAccess dataAccess = new MemoryDataAccess();
+        MySQLDataAccess mySQLDataAccess = new MySQLDataAccess();
 
-        clearService = new ClearService(dataAccess);
-        userService = new UserService(dataAccess);
-        gameService = new GameService(dataAccess);
+        try{
+            mySQLDataAccess.configureDatabase();
+        } catch (DataAccessException e) {
+            throw new RuntimeException("Unable to initialize database", e);
+        }
+
+        clearService = new ClearService(mySQLDataAccess);
+        userService = new UserService(mySQLDataAccess);
+        gameService = new GameService(mySQLDataAccess);
 
         javalin = Javalin.create(config -> {
             config.staticFiles.add("web");
             config.jsonMapper(new JavalinGson());
                 });
 
-        record CreateGameRequest(String gameName){
-        }
+        record CreateGameRequest(String gameName){}
 
         record JoinGameRequest(String playerColor, int gameID){}
 

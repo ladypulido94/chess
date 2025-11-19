@@ -56,7 +56,35 @@ public class MySQLDataAccess implements DataAccess{
     }
 
     @Override
-    public void clear() {
+    public void clear() throws DataAccessException{
+        try(var conn = DatabaseManager.getConnection()){
+            String deleteAuthTable = """
+                    DELETE FROM auth
+                    """;
+
+            try (var preparedStatement = conn.prepareStatement(deleteAuthTable)){
+                preparedStatement.executeUpdate();
+            }
+
+            String deleteGameTable = """
+                    DELETE FROM game
+                    """;
+
+            try (var preparedStatement = conn.prepareStatement(deleteGameTable)) {
+                preparedStatement.executeUpdate();
+            }
+
+            String deleteUserTable = """
+                    DELETE FROM user
+                    """;
+
+            try (var preparedStatement = conn.prepareStatement(deleteUserTable)){
+                preparedStatement.executeUpdate();
+            }
+
+        } catch (SQLException e) {
+            throw new DataAccessException("Unable clear database", e);
+        }
 
     }
 
