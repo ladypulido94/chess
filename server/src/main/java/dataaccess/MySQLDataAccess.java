@@ -298,6 +298,7 @@ public class MySQLDataAccess implements DataAccess{
 
     @Override
     public AuthData getAuthToken(String authToken) throws DataAccessException {
+
         return null;
     }
 
