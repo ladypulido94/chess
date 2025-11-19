@@ -299,11 +299,48 @@ public class MySQLDataAccess implements DataAccess{
     @Override
     public AuthData getAuthToken(String authToken) throws DataAccessException {
 
+        try(var conn = DatabaseManager.getConnection()){
+            try (var preparedStatement = conn.prepareStatement("SELECT authToken, username " +
+                    "FROM auth " +
+                    "WHERE authToken=?")){
+                preparedStatement.setString(1, authToken);
+
+                try(var rs = preparedStatement.executeQuery()){
+                    if(rs.next()){
+                        String token = rs.getString(1);
+                        String username = rs.getString(2);
+
+                        AuthData authData = new AuthData(token, username);
+                        return authData;
+                    }
+                }
+            }
+
+        } catch (SQLException e) {
+            throw new DataAccessException("Unable to get AuthToken", e);
+        }
         return null;
     }
 
     @Override
     public void deleteAuthToken(String authToken) throws DataAccessException {
+        if(getAuthToken(authToken) == null){
+            throw new DataAccessException("The AuthToken doesn't exists");
+        }
+
+        try(var conn = DatabaseManager.getConnection()){
+            String deleteAuthToken = """
+                    DELETE authToken, username
+                    FROM auth
+                    """;
+
+            try (var preparedStatement = conn.prepareStatement(deleteAuthToken)){
+                preparedStatement.executeUpdate();
+            }
+
+        } catch (SQLException e) {
+            throw new DataAccessException("Unable to delete AuthToken", e);
+        }
 
     }
 }
