@@ -275,7 +275,21 @@ public class MySQLDataAccess implements DataAccess{
 
     @Override
     public void addAuthToken(AuthData authToken) throws DataAccessException {
+        if(getAuthToken(authToken.authToken()) != null){
+            throw new DataAccessException("AuthToken already exists");
+        }
+
         try(var conn = DatabaseManager.getConnection()){
+            String insertAuthToken = """
+                    INSERT INTO auth (authToken, username) VALUES (?,?)
+                    """;
+
+            try(var preparedStatement = conn.prepareStatement(insertAuthToken)){
+                preparedStatement.setString(1, authToken.authToken());
+                preparedStatement.setString(2, authToken.username());
+
+                preparedStatement.executeUpdate();
+            }
 
         } catch (SQLException e){
             throw new DataAccessException("Unable to add token", e);
