@@ -10,7 +10,6 @@ import org.mindrot.jbcrypt.BCrypt;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.List;
 import java.sql.Statement;
 
 public class MySQLDataAccess implements DataAccess{
@@ -246,12 +245,41 @@ public class MySQLDataAccess implements DataAccess{
 
     @Override
     public void updateGame(GameData game) throws DataAccessException {
+        Gson gson = new Gson();
+        String gameJson = gson.toJson(game.game());
+
+        try(var conn = DatabaseManager.getConnection()){
+            String updateGame = """
+                    UPDATE game SET whiteUsername=?, blackUsername=?, gameName=?, game=?
+                    WHERE gameID=?
+                    """;
+            try(var preparedStatement = conn.prepareStatement(updateGame)){
+                preparedStatement.setString(1, game.whiteUsername());
+                preparedStatement.setString(2, game.blackUsername());
+                preparedStatement.setString(3, game.gameName());
+                preparedStatement.setString(4, gameJson);
+                preparedStatement.setInt(5, game.gameID());
+
+                int rowsAffected = preparedStatement.executeUpdate();
+
+                if(rowsAffected == 0){
+                    throw new DataAccessException("The game doesn't exist");
+                }
+            }
+
+        } catch (SQLException e) {
+            throw new DataAccessException("Unable to update the game", e);
+        }
 
     }
 
     @Override
     public void addAuthToken(AuthData authToken) throws DataAccessException {
+        try(var conn = DatabaseManager.getConnection()){
 
+        } catch (SQLException e){
+            throw new DataAccessException("Unable to add token", e);
+        }
     }
 
     @Override
