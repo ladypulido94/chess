@@ -1,5 +1,6 @@
 package dataaccess;
 
+import chess.ChessGame;
 import com.google.gson.Gson;
 import model.AuthData;
 import model.GameData;
@@ -7,6 +8,7 @@ import model.UserData;
 import org.mindrot.jbcrypt.BCrypt;
 
 import java.sql.SQLException;
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 import java.sql.Statement;
@@ -178,12 +180,68 @@ public class MySQLDataAccess implements DataAccess{
 
     @Override
     public GameData getGame(int gameId) throws DataAccessException {
+        Gson gson = new Gson();
+
+        try(var conn = DatabaseManager.getConnection()){
+            try(var preparedStatement = conn.prepareStatement("SELECT gameID, whiteUsername, blackUsername, gameName, game " +
+                    "FROM game " +
+                    "WHERE gameID = ?")){
+
+                preparedStatement.setInt(1, gameId);
+
+                try (var rs = preparedStatement.executeQuery()){
+                    if(rs.next()){
+                        int id = rs.getInt(1);
+                        String whiteUsername = rs.getString(2);
+                        String blackUsername = rs.getString(3);
+                        String gameName = rs.getString(4);
+                        String game = rs.getString(5);
+
+                        ChessGame chessGame = gson.fromJson(game, ChessGame.class);
+
+                        GameData gameData = new GameData(id, whiteUsername, blackUsername, gameName, chessGame);
+                        return gameData;
+                    }
+                }
+
+            }
+
+        } catch (SQLException e) {
+            throw new DataAccessException("Unable to get game", e);
+        }
+
         return null;
     }
 
     @Override
     public Collection<GameData> getAllGames() throws DataAccessException {
-        return List.of();
+        Collection<GameData> games = new ArrayList<>();
+        Gson gson = new Gson();
+
+        try(var conn = DatabaseManager.getConnection()){
+            try(var preparedStatement = conn.prepareStatement("SELECT gameID, whiteUsername, blackUsername, gameName, game " +
+                    "FROM game")){
+                try(var rs = preparedStatement.executeQuery()){
+                    while(rs.next()){
+                        int gameId = rs.getInt(1);
+                        String whiteUsername = rs.getString(2);
+                        String blackUsername = rs.getString(3);
+                        String gameName = rs.getString(4);
+                        String game = rs.getString(5);
+
+                        ChessGame chessGame = gson.fromJson(game, ChessGame.class);
+                        GameData gameData = new GameData(gameId, whiteUsername, blackUsername, gameName, chessGame);
+                        games.add(gameData);
+
+                    }
+                }
+            }
+
+        } catch (SQLException e) {
+            throw new DataAccessException("Unable to get all games", e);
+        }
+
+        return games;
     }
 
     @Override
