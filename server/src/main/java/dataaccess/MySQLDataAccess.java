@@ -124,7 +124,7 @@ public class MySQLDataAccess implements DataAccess{
         try (var conn = DatabaseManager.getConnection()) {
 
             try(var preparedStatement = conn.prepareStatement("SELECT username, password, email " +
-                    "FROM user" +
+                    "FROM user " +
                     "WHERE username = ?")){
                 preparedStatement.setString(1, username);
 
@@ -330,11 +330,11 @@ public class MySQLDataAccess implements DataAccess{
 
         try(var conn = DatabaseManager.getConnection()){
             String deleteAuthToken = """
-                    DELETE authToken, username
-                    FROM auth
+                    DELETE FROM auth WHERE authToken = ?
                     """;
 
             try (var preparedStatement = conn.prepareStatement(deleteAuthToken)){
+                preparedStatement.setString(1, authToken);
                 preparedStatement.executeUpdate();
             }
 
