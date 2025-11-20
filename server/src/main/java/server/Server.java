@@ -1,8 +1,6 @@
 package server;
 
-import dataaccess.DataAccess;
 import dataaccess.DataAccessException;
-import dataaccess.MemoryDataAccess;
 import dataaccess.MySQLDataAccess;
 import io.javalin.*;
 import io.javalin.json.JavalinGson;
@@ -29,7 +27,7 @@ public class Server {
         try{
             mySQLDataAccess.configureDatabase();
         } catch (DataAccessException e) {
-            throw new RuntimeException("Unable to initialize database", e);
+            throw new RuntimeException("Error: Unable to initialize database", e);
         }
 
         clearService = new ClearService(mySQLDataAccess);
@@ -104,9 +102,13 @@ public class Server {
                 ctx.json(Map.of());
 
             } catch (DataAccessException e) {
-                ctx.status(401);
+                String message = e.getMessage();
+                if(message.equals("Error: AuthToken doesn't exist")){
+                    ctx.status(401);
+                } else {
+                    ctx.status(500);
+                }
                 ctx.json(Map.of("message", e.getMessage()));
-
             }
         });
 
@@ -118,7 +120,12 @@ public class Server {
                 ctx.json(Map.of("games", games));
 
             } catch (DataAccessException e) {
-                ctx.status(401);
+                String message = e.getMessage();
+                if(message.equals("Error: Unauthorized")){
+                    ctx.status(401);
+                } else{
+                    ctx.status(500);
+                }
                 ctx.json(Map.of("message",e.getMessage()));
             }
         });

@@ -55,7 +55,7 @@ public class MySQLDataAccess implements DataAccess{
                 preparedStatement.executeUpdate();
             }
         } catch (SQLException e) {
-            throw new DataAccessException("Unable to configure database", e);
+            throw new DataAccessException("Error: Unable to configure database", e);
         }
     }
 
@@ -87,7 +87,7 @@ public class MySQLDataAccess implements DataAccess{
             }
 
         } catch (SQLException e) {
-            throw new DataAccessException("Unable clear database", e);
+            throw new DataAccessException("Error: Unable clear database", e);
         }
 
     }
@@ -95,7 +95,7 @@ public class MySQLDataAccess implements DataAccess{
     @Override
     public void addUser(UserData user) throws DataAccessException {
         if(getUser(user.username()) != null){
-            throw new DataAccessException("User already exists");
+            throw new DataAccessException("Error: User already exists");
         }
 
         String hashPassword = BCrypt.hashpw(user.password(), BCrypt.gensalt());
@@ -114,7 +114,7 @@ public class MySQLDataAccess implements DataAccess{
             }
 
         } catch (SQLException e){
-            throw new DataAccessException("Unable to add user", e);
+            throw new DataAccessException("Error: Unable to add user", e);
         }
 
     }
@@ -141,7 +141,7 @@ public class MySQLDataAccess implements DataAccess{
             }
 
         } catch (SQLException e){
-            throw new DataAccessException("Unable to find user", e);
+            throw new DataAccessException("Error: Unable to find user", e);
         }
         return null;
     }
@@ -172,7 +172,7 @@ public class MySQLDataAccess implements DataAccess{
             }
 
         } catch (SQLException e) {
-            throw new DataAccessException("Unable to add game", e);
+            throw new DataAccessException("Error: Unable to add game", e);
         }
         return 0;
     }
@@ -206,7 +206,7 @@ public class MySQLDataAccess implements DataAccess{
             }
 
         } catch (SQLException e) {
-            throw new DataAccessException("Unable to get game", e);
+            throw new DataAccessException("Error: Unable to get game", e);
         }
 
         return null;
@@ -237,7 +237,7 @@ public class MySQLDataAccess implements DataAccess{
             }
 
         } catch (SQLException e) {
-            throw new DataAccessException("Unable to get all games", e);
+            throw new DataAccessException("Error: Unable to get all games", e);
         }
 
         return games;
@@ -263,12 +263,12 @@ public class MySQLDataAccess implements DataAccess{
                 int rowsAffected = preparedStatement.executeUpdate();
 
                 if(rowsAffected == 0){
-                    throw new DataAccessException("The game doesn't exist");
+                    throw new DataAccessException("Error: The game doesn't exist");
                 }
             }
 
         } catch (SQLException e) {
-            throw new DataAccessException("Unable to update the game", e);
+            throw new DataAccessException("Error: Unable to update the game", e);
         }
 
     }
@@ -276,7 +276,7 @@ public class MySQLDataAccess implements DataAccess{
     @Override
     public void addAuthToken(AuthData authToken) throws DataAccessException {
         if(getAuthToken(authToken.authToken()) != null){
-            throw new DataAccessException("AuthToken already exists");
+            throw new DataAccessException("Error: AuthToken already exists");
         }
 
         try(var conn = DatabaseManager.getConnection()){
@@ -292,7 +292,7 @@ public class MySQLDataAccess implements DataAccess{
             }
 
         } catch (SQLException e){
-            throw new DataAccessException("Unable to add token", e);
+            throw new DataAccessException("Error: Unable to add token", e);
         }
     }
 
@@ -317,7 +317,7 @@ public class MySQLDataAccess implements DataAccess{
             }
 
         } catch (SQLException e) {
-            throw new DataAccessException("Unable to get AuthToken", e);
+            throw new DataAccessException("Error: Unable to get AuthToken", e);
         }
         return null;
     }
@@ -325,7 +325,7 @@ public class MySQLDataAccess implements DataAccess{
     @Override
     public void deleteAuthToken(String authToken) throws DataAccessException {
         if(getAuthToken(authToken) == null){
-            throw new DataAccessException("The AuthToken doesn't exists");
+            throw new DataAccessException("Error: The AuthToken doesn't exist");
         }
 
         try(var conn = DatabaseManager.getConnection()){
@@ -339,7 +339,7 @@ public class MySQLDataAccess implements DataAccess{
             }
 
         } catch (SQLException e) {
-            throw new DataAccessException("Unable to delete AuthToken", e);
+            throw new DataAccessException("Error: Unable to delete AuthToken", e);
         }
 
     }
