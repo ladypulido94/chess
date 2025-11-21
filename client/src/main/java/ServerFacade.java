@@ -1,10 +1,14 @@
 import com.google.gson.Gson;
 import model.AuthData;
 import model.GameData;
-import model.UserData;
 
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.io.OutputStream;
+import java.net.HttpURLConnection;
+import java.net.URL;
 import java.util.Collection;
-import java.util.Objects;
 
 public class ServerFacade {
 
@@ -50,7 +54,52 @@ public class ServerFacade {
 
     //Helper Methods
     private <T> T makeRequest (String method, String path, Object request, String authToken, Class<T> responseClass) throws Exception{
-        return null;
+        try {
+            URL url = new URL(serverUrl + path);
+            HttpURLConnection conn = (HttpURLConnection) url.openConnection();
+            conn.setRequestMethod(method);
+            conn.setDoOutput(true);
+
+            if(authToken != null){
+                conn.setRequestProperty("authorization", authToken);
+            }
+
+            if(request != null){
+                conn.setRequestProperty("Content-Type", "application/json");
+                String reqData = gson.toJson(request);
+                try(OutputStream os = conn.getOutputStream()){
+                    os.write(reqData.getBytes());
+                }
+            }
+
+            conn.connect();
+            int responseCode = conn.getResponseCode();
+
+            if(responseCode == 200){
+                if(responseClass == null){
+                    return null;
+                }
+
+                try (InputStream inputStream = conn.getInputStream()){
+                    InputStreamReader reader = new InputStreamReader(inputStream);
+                    return gson.fromJson(reader, responseClass);
+                }
+            } else {
+                try(InputStream errorStream = conn.getErrorStream()){
+                    if(errorStream != null){
+                        InputStreamReader inputStreamReader = new InputStreamReader(errorStream);
+                        record ErrorResponse(String message){}
+                        ErrorResponse error = gson.fromJson(inputStreamReader, ErrorResponse.class);
+                        throw new Exception(error.message());
+                    }
+                }
+
+                throw new Exception("Error: Unknown server error");
+            }
+
+        } catch (IOException e){
+            throw new Exception("Error: Unable to connect to server");
+        }
     }
 
 }
