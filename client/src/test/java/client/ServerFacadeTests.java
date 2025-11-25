@@ -1,8 +1,13 @@
 package client;
 
 import facade.ServerFacade;
+import model.AuthData;
+import model.UserData;
 import org.junit.jupiter.api.*;
 import server.Server;
+
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
 
 public class ServerFacadeTests {
@@ -30,8 +35,66 @@ public class ServerFacadeTests {
 
 
     @Test
-    public void sampleTest() {
-        Assertions.assertTrue(true);
+    public void registerPositive() throws Exception{
+        AuthData token = facade.register("test", "testPassword", "test@test.com");
+        assertNotNull(token);
+        assertNotNull(token.authToken());
+    }
+
+    @Test
+    public void registerNegative() throws Exception{
+        facade.register("test", "testPassword", "test@test.com");
+        assertThrows(Exception.class, () -> facade.register("test","testPassword","test@test.com"));
+    }
+
+    @Test
+    public void loginPositive() throws Exception{
+
+    }
+
+    @Test
+    public void loginNegative() throws Exception{
+
+    }
+
+    @Test
+    public void logoutPositive() throws Exception{
+
+    }
+
+    @Test
+    public void logoutNegative() throws Exception{
+
+    }
+
+    @Test
+    public void createGamePositive() throws Exception{
+
+    }
+
+    @Test
+    public void createGameNegative() throws Exception{
+
+    }
+
+    @Test
+    public void listAllGamesPositive() throws Exception{
+
+    }
+
+    @Test
+    public void listAllGamesNegative() throws Exception{
+
+    }
+
+    @Test
+    public void joinGamePositive() throws Exception{
+
+    }
+
+    @Test
+    public void joinGameNegative() throws Exception{
+
     }
 
 }
