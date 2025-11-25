@@ -6,8 +6,7 @@ import model.UserData;
 import org.junit.jupiter.api.*;
 import server.Server;
 
-import static org.junit.jupiter.api.Assertions.assertNotNull;
-import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.*;
 
 
 public class ServerFacadeTests {
@@ -64,16 +63,25 @@ public class ServerFacadeTests {
 
     @Test
     public void logoutPositive() throws Exception{
+        facade.register("test","testPassword","test@test.com");
+        AuthData token = facade.login("test","testPassword");
+        facade.logout(token.authToken());
 
+        assertThrows(Exception.class, () -> facade.listAllGames(token.authToken()));
     }
 
     @Test
     public void logoutNegative() throws Exception{
+        assertThrows(Exception.class, () -> facade.logout("invalidToken"));
 
     }
 
     @Test
     public void createGamePositive() throws Exception{
+        AuthData token = facade.register("test", "testPassword", "test@test.com");
+        int gameId = facade.createGame(token.authToken(),"testGame");
+
+        assertNotNull(gameId);
 
     }
 
