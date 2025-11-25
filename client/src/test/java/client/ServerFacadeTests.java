@@ -91,12 +91,17 @@ public class ServerFacadeTests {
 
     @Test
     public void listAllGamesPositive() throws Exception{
+        AuthData token = facade.register("test","testPassword","test@test.com");
+        facade.createGame(token.authToken(),"testGame");
+        facade.createGame(token.authToken(), "testGame1");
+        facade.createGame(token.authToken(),"testGame2");
 
+        assertDoesNotThrow(() -> facade.listAllGames(token.authToken()));
     }
 
     @Test
     public void listAllGamesNegative() throws Exception{
-
+        assertThrows(Exception.class, () -> facade.listAllGames("invalidToken"));
     }
 
     @Test
