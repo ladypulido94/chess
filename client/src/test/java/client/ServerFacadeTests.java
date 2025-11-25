@@ -49,12 +49,17 @@ public class ServerFacadeTests {
 
     @Test
     public void loginPositive() throws Exception{
+        facade.register("test","testPassword","test@test.com");
+        AuthData token = facade.login("test", "testPassword");
 
+        assertNotNull(token);
+        assertNotNull(token.authToken());
     }
 
     @Test
     public void loginNegative() throws Exception{
-
+        facade.register("test", "testPassword","test@test.com");
+        assertThrows(Exception.class, () -> facade.login("test","tesPass"));
     }
 
     @Test
