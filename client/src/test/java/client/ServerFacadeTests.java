@@ -106,12 +106,15 @@ public class ServerFacadeTests {
 
     @Test
     public void joinGamePositive() throws Exception{
+        AuthData token = facade.register("test","testPassword", "test@test.com");
+        int gameId = facade.createGame(token.authToken(),"testGame");
 
+        assertDoesNotThrow(() -> facade.joinGame(token.authToken(), gameId, "White"));
     }
 
     @Test
     public void joinGameNegative() throws Exception{
-
+        assertThrows(Exception.class, () -> facade.joinGame("invalidToken", 2, "white"));
     }
 
 }
