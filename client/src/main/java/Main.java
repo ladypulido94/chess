@@ -12,7 +12,7 @@ public class Main {
 
         ServerFacade serverFacade = new ServerFacade(serverUrl);
 
-        PreLoginUI preLoginUI = new PreLoginUI();
+        PreLoginUI preLoginUI = new PreLoginUI(serverFacade);
 
         System.out.println("Goodbye!");
     }
