@@ -1,8 +1,19 @@
 import chess.*;
+import facade.ServerFacade;
+import ui.PreLoginUI;
 
 public class Main {
     public static void main(String[] args) {
-        var piece = new ChessPiece(ChessGame.TeamColor.WHITE, ChessPiece.PieceType.PAWN);
-        System.out.println("♕ 240 Chess Client: " + piece);
+        var serverUrl = "http:localhost:8080";
+
+        if (args.length > 0) {
+            serverUrl = args[0];
+        }
+
+        ServerFacade serverFacade = new ServerFacade(serverUrl);
+
+        PreLoginUI preLoginUI = new PreLoginUI();
+
+        System.out.println("Goodbye!");
     }
 }
