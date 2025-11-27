@@ -18,7 +18,7 @@ public class ChessBoard {
         boolean whiteAtBottom = true;
         drawColumnHeaders(whiteAtBottom);
 
-        for (int i = 8; i >= 1; i++){
+        for (int i = 8; i >= 1; i--){
             drawRow(i, game, whiteAtBottom);
         }
         drawColumnHeaders(whiteAtBottom);

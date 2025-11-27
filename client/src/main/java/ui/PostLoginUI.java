@@ -61,6 +61,8 @@ public class PostLoginUI {
 
         try{
             facade.createGame(authData.authToken(), tokens[1]);
+            System.out.println("Game created successfully!");
+            games = new ArrayList<>(facade.listAllGames(authData.authToken()));
 
         } catch (Exception e){
             System.out.println("Create failed: " + e.getMessage());
@@ -133,7 +135,11 @@ public class PostLoginUI {
             facade.joinGame(authData.authToken(), game.gameID(), playerColor);
             System.out.println("Joined game as " + playerColor);
 
-            //TO DO: DRAW CHESSBOARD
+            if (playerColor.equals("WHITE")){
+                ChessBoard.drawWhiteBoard(game.game());
+            } else {
+                ChessBoard.drawBlackBoard(game.game());
+            }
 
         } catch (Exception e){
             System.out.println("Join failed: " + e.getMessage());
@@ -161,7 +167,7 @@ public class PostLoginUI {
             GameData game = games.get(gameNumber - 1);
             System.out.println("Observing game: " + game.gameName());
 
-            //TO DO: DRAW CHESSBOARD
+            ChessBoard.drawWhiteBoard(game.game());
         } catch (Exception e) {
             System.out.println("Observe failed: " + e.getMessage());
         }
