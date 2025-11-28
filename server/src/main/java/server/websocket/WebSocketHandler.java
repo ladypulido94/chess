@@ -2,10 +2,15 @@ package server.websocket;
 
 import com.google.gson.Gson;
 import dataaccess.DataAccess;
+import dataaccess.DataAccessException;
+import model.AuthData;
+import model.GameData;
 import org.eclipse.jetty.websocket.api.Session;
 import org.eclipse.jetty.websocket.api.annotations.*;
 import websocket.commands.UserGameCommand;
 import websocket.messages.ErrorMessage;
+import websocket.messages.LoadGameMessage;
+import websocket.messages.NotificationMessage;
 import websocket.messages.ServerMessage;
 
 import java.io.IOException;
@@ -81,6 +86,41 @@ public class WebSocketHandler {
                 sendMessage(session, message);
             }
         }
+    }
+
+    private void handleConnect(Session session, UserGameCommand command) throws  IOException, DataAccessException {
+        String authToken = command.getAuthToken();
+        Integer gameId = command.getGameID();
+
+        AuthData authData = dataAccess.getAuthToken(authToken);
+        if(authData == null){
+            sendMessage(session, new ErrorMessage("Error: Invalid auth token"));
+            return;
+        }
+
+        GameData gameData = dataAccess.getGame(gameId);
+        if(gameData == null){
+            sendMessage(session, new ErrorMessage("Error: Game not found"));
+            return;
+        }
+
+        connections.put(authToken, session);
+        connectionGames.put(authToken, gameId);
+
+        sendMessage(session, new LoadGameMessage(gameData.game()));
+
+        String username = authData.username();
+        String notification;
+
+        if(username.equals(gameData.whiteUsername())){
+            notification = username + " joined the game as WHITE";
+        } else if (username.equals(gameData.blackUsername())) {
+            notification = username + " joined the game as BLACK";
+        } else {
+            notification = username + " joined as an observer";
+        }
+
+        broadcastToGame(gameId, new NotificationMessage(notification), session);
     }
 
 }
