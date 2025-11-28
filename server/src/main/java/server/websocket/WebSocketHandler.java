@@ -45,4 +45,17 @@ public class WebSocketHandler {
         }
     }
 
+    private void broadcastToGame(Integer gameID, ServerMessage message, Session excludeSession) throws IOException{
+        for(Map.Entry<String, Session> entry: connections.entrySet()){
+            Session session = entry.getValue();
+            String authToken = entry.getKey();
+
+            if(connectionGames.get(authToken) != null &&
+            connectionGames.get(authToken).equals(gameID) &&
+            session != excludeSession){
+                sendMessage(session, message);
+            }
+        }
+    }
+
 }
