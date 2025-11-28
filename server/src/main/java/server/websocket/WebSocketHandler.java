@@ -3,7 +3,9 @@ package server.websocket;
 import com.google.gson.Gson;
 import org.eclipse.jetty.websocket.api.Session;
 import org.eclipse.jetty.websocket.api.annotations.*;
+import websocket.messages.ServerMessage;
 
+import java.io.IOException;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
@@ -37,4 +39,10 @@ public class WebSocketHandler {
     }
 
     // --------- HELPER METHODS ----------
+    private void sendMessage(Session session, ServerMessage message) throws IOException {
+        if(session.isOpen()){
+            session.getRemote().sendString(gson.toJson(message));
+        }
+    }
+
 }
