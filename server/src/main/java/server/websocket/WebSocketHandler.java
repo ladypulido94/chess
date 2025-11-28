@@ -1,8 +1,11 @@
 package server.websocket;
 
 import com.google.gson.Gson;
+import dataaccess.DataAccess;
 import org.eclipse.jetty.websocket.api.Session;
 import org.eclipse.jetty.websocket.api.annotations.*;
+import websocket.commands.UserGameCommand;
+import websocket.messages.ErrorMessage;
 import websocket.messages.ServerMessage;
 
 import java.io.IOException;
@@ -14,6 +17,11 @@ public class WebSocketHandler {
     private final Map<String, Session> connections = new ConcurrentHashMap<>();
     private final Map<String, Integer> connectionGames = new ConcurrentHashMap<>();
     private final Gson gson = new Gson();
+    private final DataAccess dataAccess;
+
+    public WebSocketHandler(DataAccess dataAccess){
+        this.dataAccess = dataAccess;
+    }
 
     @OnWebSocketConnect
     public void onConnect(Session session){
@@ -31,6 +39,23 @@ public class WebSocketHandler {
     public void onMessage(Session session, String message){
         System.out.println("Received: " + message);
         //TODO: Parse message, handle command
+        try {
+            UserGameCommand command = gson.fromJson(message, UserGameCommand.class);
+
+            switch(command.getCommandType()){
+                case CONNECT -> handleConnect(session, command);
+                case MAKE_MOVE -> handleMakeMove(session, command);
+                case LEAVE -> hanldeLeave(session, command);
+                case RESIGN -> handleResign(session, command);
+            }
+
+        } catch (Exception e) {
+            try {
+                sendMessage(session, new ErrorMessage("Error: " + e.getMessage()));
+            } catch (IOException ex) {
+                System.err.println("Failed to send error message: " + ex.getMessage());
+            }
+        }
     }
 
     @OnWebSocketError
