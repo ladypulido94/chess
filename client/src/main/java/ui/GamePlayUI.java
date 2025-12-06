@@ -19,7 +19,7 @@ public class GamePlayUI implements ServerMessageObserver {
     private final int gameID;
     private final String playerColor;
     private final Scanner scanner;
-    private final boolean running;
+    private boolean running;
     private ChessGame currentGame;
 
     public GamePlayUI(WebSocketCommunicator webSocketCommunicator, String authToken, int gameID,
@@ -123,6 +123,41 @@ public class GamePlayUI implements ServerMessageObserver {
         } else {
             ChessBoard.drawWhiteBoard(currentGame);
         }
+    }
+
+    // Print how the commands should be used
+    private void handleHelp(){
+        System.out.println(SET_TEXT_COLOR_BLUE + "redraw" + SET_TEXT_COLOR_WHITE + " - redraw the chessboard");
+        System.out.println(SET_TEXT_COLOR_BLUE + "leave" + SET_TEXT_COLOR_WHITE + " - leave the game");
+        System.out.println(SET_TEXT_COLOR_BLUE + "move <FROM> <TO>" + SET_TEXT_COLOR_WHITE + " - make a move (e.d., move e2 e4)");
+        System.out.println(SET_TEXT_COLOR_BLUE + "resign" + SET_TEXT_COLOR_WHITE + " - forfeit the game");
+        System.out.println(SET_TEXT_COLOR_BLUE + "highlight <POSITION>" + SET_TEXT_COLOR_WHITE + " - show legal moves (e.g., highlight e4)");
+        System.out.println(SET_TEXT_COLOR_BLUE + "help" + SET_TEXT_COLOR_WHITE + " - show available commands");
+    }
+
+    //Leaves the interface
+    private void handleLeave() throws Exception{
+        UserGameCommand leaveCommand = new UserGameCommand(
+                UserGameCommand.CommandType.LEAVE,
+                authToken,
+                gameID
+        );
+        webSocketCommunicator.send(leaveCommand);
+        webSocketCommunicator.close();
+        running = false;
+        System.out.println("Left the game.");
+    }
+
+    private void handleResign(){
+
+    }
+
+    private void handleMove(){
+
+    }
+
+    private void handleHighlight(){
+
     }
 
 }
