@@ -3,6 +3,7 @@ package ui;
 import chess.ChessGame;
 import websocket.ServerMessageObserver;
 import websocket.WebSocketCommunicator;
+import websocket.commands.UserGameCommand;
 import websocket.messages.ErrorMessage;
 import websocket.messages.LoadGameMessage;
 import websocket.messages.NotificationMessage;
@@ -42,9 +43,52 @@ public class GamePlayUI implements ServerMessageObserver {
 
     }
 
+    // Read - Eval - Print Loop
     public void run(){
+        try{
+            UserGameCommand connectCommand = new UserGameCommand(
+                    UserGameCommand.CommandType.CONNECT,
+                    authToken,
+                    gameID
+            );
+            webSocketCommunicator.send(connectCommand);
+
+        } catch (Exception e) {
+            System.out.println("Failed to connect: " + e.getMessage());
+            return;
+        }
+
+        //Game Loop
+        while(running){
+            System.out.println(SET_TEXT_COLOR_GREEN + "[IN_GAME] >>> " + RESET_TEXT_COLOR);
+            String input = scanner.nextLine().trim();
+
+            if(input.isEmpty()){
+                continue;
+            }
+
+            String[] tokens = input.split(" ");
+            String command = tokens[0].toLowerCase();
+
+            try{
+                switch (command) {
+                    case "help" -> handleHelp();
+                    case "redraw" -> drawBoard();
+                    case "leave" -> handleLeave();
+                    case "move" -> handleMove(tokens);
+                    case "resign" -> handleResign();
+                    case "highlight" -> handleHighlight(tokens);
+                    default -> System.out.println("Unknown command. Type 'help' for options.");
+                }
+
+            } catch (Exception e){
+                System.out.println("Error: " + e.getMessage());
+            }
+        }
 
     }
+
+    // --------- METHOD HELPERS ----------
 
     //Store the game and redraw the board
     private void handleLoadGame(LoadGameMessage message){
@@ -76,9 +120,9 @@ public class GamePlayUI implements ServerMessageObserver {
 
         } else if("BLACK".equals(playerColor)){
             ChessBoard.drawBlackBoard(currentGame);
-
         } else {
             ChessBoard.drawWhiteBoard(currentGame);
         }
     }
+
 }
