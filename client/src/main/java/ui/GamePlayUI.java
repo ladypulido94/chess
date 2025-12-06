@@ -148,15 +148,29 @@ public class GamePlayUI implements ServerMessageObserver {
         System.out.println("Left the game.");
     }
 
-    private void handleResign(){
+    private void handleResign() throws Exception{
+        System.out.print("Are you sure you want to resign? (yes/no): ");
+        String input = scanner.nextLine().trim();
+
+        if(input.equalsIgnoreCase("yes")){
+            UserGameCommand commandResign = new UserGameCommand(
+                    UserGameCommand.CommandType.RESIGN,
+                    authToken,
+                    gameID
+            );
+            webSocketCommunicator.send(commandResign);
+            System.out.println("You have resigned from the game");
+        } else {
+            System.out.println("Resigned cancelled.");
+        }
 
     }
 
-    private void handleMove(){
+    private void handleMove(String[] tokens){
 
     }
 
-    private void handleHighlight(){
+    private void handleHighlight(String[] tokens){
 
     }
 
