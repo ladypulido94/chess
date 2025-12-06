@@ -5,6 +5,8 @@ import model.AuthData;
 
 import java.util.Scanner;
 
+import static ui.EscapeSequences.*;
+
 public class PreLoginUI {
     private final ServerFacade facade;
     private final Scanner scanner;
@@ -17,9 +19,10 @@ public class PreLoginUI {
     }
 
     public void run(){
-        System.out.println("Welcome to Chess. Type Help to get started.");
+        System.out.println("♕ Welcome to 240 Chess. Type 'help' to get started. ♕");
 
         while(running){
+            System.out.print(SET_TEXT_COLOR_GREEN + "[LOGGED_OUT] >>> " + RESET_TEXT_COLOR);
 
             String input = scanner.nextLine().trim();
 
@@ -37,10 +40,14 @@ public class PreLoginUI {
     }
 
     private void handleHelp(){
-        System.out.println("register <USERNAME> <PASSWORD> <EMAIL> - to create an account");
-        System.out.println("login <USERNAME> <PASSWORD> - to play chess");
-        System.out.println("quit - playing chess");
-        System.out.println("help - with possible commands");
+        System.out.println( SET_TEXT_COLOR_BLUE + "register <USERNAME> <PASSWORD> <EMAIL>" +
+                SET_TEXT_COLOR_WHITE + " - to create an account");
+        System.out.println( SET_TEXT_COLOR_BLUE + "login <USERNAME> <PASSWORD> " +
+                SET_TEXT_COLOR_WHITE + " - to play chess");
+        System.out.println(SET_TEXT_COLOR_BLUE + "quit " +
+                SET_TEXT_COLOR_WHITE +" - playing chess");
+        System.out.println(SET_TEXT_COLOR_BLUE + "help" +
+                SET_TEXT_COLOR_WHITE +" - with possible commands");
     }
 
     private void handleRegister(String[] tokens) {

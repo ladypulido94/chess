@@ -7,6 +7,7 @@ import io.javalin.json.JavalinGson;
 import model.AuthData;
 import model.GameData;
 import model.UserData;
+import server.websocket.WebSocketHandler;
 import service.ClearService;
 import service.GameService;
 import service.UserService;
@@ -38,6 +39,14 @@ public class Server {
             config.staticFiles.add("web");
             config.jsonMapper(new JavalinGson());
                 });
+
+        WebSocketHandler webSocketHandler = new WebSocketHandler(mySQLDataAccess);
+        javalin.ws("/ws", ws -> {
+            ws.onConnect(webSocketHandler::onConnect);
+            ws.onMessage(webSocketHandler::onMessage);
+            ws.onClose(webSocketHandler::onClose);
+            ws.onError(webSocketHandler::onError);
+        });
 
         record CreateGameRequest(String gameName){}
 

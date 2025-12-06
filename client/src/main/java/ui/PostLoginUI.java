@@ -5,9 +5,10 @@ import model.AuthData;
 import model.GameData;
 
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.List;
 import java.util.Scanner;
+
+import static ui.EscapeSequences.*;
 
 public class PostLoginUI {
     private final ServerFacade facade;
@@ -26,6 +27,7 @@ public class PostLoginUI {
 
     public void run(){
         while(running){
+            System.out.print(SET_TEXT_COLOR_GREEN + "[LOGGED_IN] >>> " + RESET_TEXT_COLOR);
             String input = scanner.nextLine().trim();
             String[] tokens = input.split(" ");
             String command = tokens[0].toLowerCase();
@@ -44,13 +46,20 @@ public class PostLoginUI {
     }
 
     private void handleHelp(){
-        System.out.println("create <NAME> - a game");
-        System.out.println("list - games");
-        System.out.println("join <ID> [WHITE|BLACK] - a game");
-        System.out.println("observe <ID> - a game");
-        System.out.println("logout - when you are done");
-        System.out.println("quit - playing chess");
-        System.out.println("help - with possible commands");
+        System.out.println( SET_TEXT_COLOR_BLUE + "create <NAME>" +
+                SET_TEXT_COLOR_WHITE + " - a game");
+        System.out.println(SET_TEXT_COLOR_BLUE + "list" +
+                SET_TEXT_COLOR_WHITE + " - games");
+        System.out.println(SET_TEXT_COLOR_BLUE + "join <ID> [WHITE|BLACK]" +
+                SET_TEXT_COLOR_WHITE + " - a game");
+        System.out.println(SET_TEXT_COLOR_BLUE + "observe <ID>" +
+                SET_TEXT_COLOR_WHITE + " - a game");
+        System.out.println(SET_TEXT_COLOR_BLUE + "logout" +
+                SET_TEXT_COLOR_WHITE + " - when you are done");
+        System.out.println(SET_TEXT_COLOR_BLUE + "quit" +
+                SET_TEXT_COLOR_WHITE + " - playing chess");
+        System.out.println(SET_TEXT_COLOR_BLUE + "help" +
+                SET_TEXT_COLOR_WHITE + " - with possible commands");
     }
 
     private void handleCreate(String[] tokens){

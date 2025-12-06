@@ -3,6 +3,10 @@ package server.websocket;
 import com.google.gson.Gson;
 import dataaccess.DataAccess;
 import dataaccess.DataAccessException;
+import io.javalin.websocket.WsCloseContext;
+import io.javalin.websocket.WsConnectContext;
+import io.javalin.websocket.WsErrorContext;
+import io.javalin.websocket.WsMessageContext;
 import model.AuthData;
 import model.GameData;
 import org.eclipse.jetty.websocket.api.Session;
@@ -29,34 +33,34 @@ public class WebSocketHandler {
     }
 
     @OnWebSocketConnect
-    public void onConnect(Session session){
-        System.out.println("Websocket connected: " + session);
+    public void onConnect(WsConnectContext ctx){
+        System.out.println("Websocket connected: " + ctx.session);
     }
 
     @OnWebSocketClose
-    public void onClose(Session session, int statusCode, String reason){
-        System.out.println("WebSocket closed: " + session);
+    public void onClose(WsCloseContext ctx){
+        System.out.println("WebSocket closed: " + ctx.session);
         //TODO: Remove from connections map
 
     }
 
     @OnWebSocketMessage
-    public void onMessage(Session session, String message){
-        System.out.println("Received: " + message);
+    public void onMessage(WsMessageContext ctx){
+        System.out.println("Received: " + ctx.message());
         //TODO: Parse message, handle command
         try {
-            UserGameCommand command = gson.fromJson(message, UserGameCommand.class);
+            UserGameCommand command = gson.fromJson(ctx.message(), UserGameCommand.class);
 
             switch(command.getCommandType()){
-                case CONNECT -> handleConnect(session, command);
-                case MAKE_MOVE -> handleMakeMove(session, command);
-                case LEAVE -> hanldeLeave(session, command);
-                case RESIGN -> handleResign(session, command);
+                case CONNECT -> handleConnect(ctx.session, command);
+                case MAKE_MOVE -> handleMakeMove(ctx.session, command);
+                case LEAVE -> handleLeave(ctx.session, command);
+                case RESIGN -> handleResign(ctx.session, command);
             }
 
         } catch (Exception e) {
             try {
-                sendMessage(session, new ErrorMessage("Error: " + e.getMessage()));
+                sendMessage(ctx.session, new ErrorMessage("Error: " + e.getMessage()));
             } catch (IOException ex) {
                 System.err.println("Failed to send error message: " + ex.getMessage());
             }
@@ -64,8 +68,8 @@ public class WebSocketHandler {
     }
 
     @OnWebSocketError
-    public void onError(Session session, Throwable error){
-        System.err.println("Websocket error: " + error.getMessage());
+    public void onError(WsErrorContext ctx){
+        System.err.println("Websocket error: " + ctx.error().getMessage());
     }
 
     // --------- HELPER METHODS ----------
@@ -92,23 +96,28 @@ public class WebSocketHandler {
         String authToken = command.getAuthToken();
         Integer gameId = command.getGameID();
 
+        //Validate the auth token
         AuthData authData = dataAccess.getAuthToken(authToken);
         if(authData == null){
             sendMessage(session, new ErrorMessage("Error: Invalid auth token"));
             return;
         }
 
+        //Validate the game
         GameData gameData = dataAccess.getGame(gameId);
         if(gameData == null){
             sendMessage(session, new ErrorMessage("Error: Game not found"));
             return;
         }
 
+        //Store the connections
         connections.put(authToken, session);
         connectionGames.put(authToken, gameId);
 
+        //send Load Game to the connecting client
         sendMessage(session, new LoadGameMessage(gameData.game()));
 
+        //Verify if it's a player or an observer
         String username = authData.username();
         String notification;
 
@@ -121,6 +130,18 @@ public class WebSocketHandler {
         }
 
         broadcastToGame(gameId, new NotificationMessage(notification), session);
+    }
+
+    private void handleMakeMove(Session session, UserGameCommand command) throws  IOException, DataAccessException{
+
+    }
+
+    private void handleLeave(Session session, UserGameCommand command) throws IOException, DataAccessException{
+
+    }
+
+    private void handleResign(Session session, UserGameCommand command) throws IOException, DataAccessException{
+
     }
 
 }
