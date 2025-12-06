@@ -12,6 +12,7 @@ import websocket.messages.LoadGameMessage;
 import websocket.messages.NotificationMessage;
 import websocket.messages.ServerMessage;
 
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Scanner;
@@ -115,18 +116,22 @@ public class GamePlayUI implements ServerMessageObserver {
 
     //Drawing the board from white or black perspective
     private void drawBoard(){
+        drawBoard(null);
+    }
+
+    private void drawBoard(Collection<ChessMove> moves){
         if(currentGame == null){
             System.out.println("No game loaded yet.");
             return;
         }
 
         if("WHITE".equals(playerColor)){
-            ChessBoard.drawWhiteBoard(currentGame);
+            ChessBoard.drawWhiteBoard(currentGame, moves);
 
         } else if("BLACK".equals(playerColor)){
-            ChessBoard.drawBlackBoard(currentGame);
+            ChessBoard.drawBlackBoard(currentGame, moves);
         } else {
-            ChessBoard.drawWhiteBoard(currentGame);
+            ChessBoard.drawWhiteBoard(currentGame, moves);
         }
     }
 
@@ -195,7 +200,18 @@ public class GamePlayUI implements ServerMessageObserver {
     }
 
     private void handleHighlight(String[] tokens){
+        if(tokens.length != 2){
+            System.out.println("Usage: highlight <POSITION> (e.g., highlight e4)");
+            return;
+        }
+        ChessPosition position = parsePosition(tokens[1]);
+        Collection<ChessMove> validMoves = currentGame.validMoves(position);
 
+        if(validMoves == null || validMoves.isEmpty()){
+            System.out.println("No piece at that position or no valid moves.");
+            return;
+        }
+        drawBoard();
     }
 
     private ChessPosition parsePosition(String position){
