@@ -5,6 +5,7 @@ import chess.ChessMove;
 import chess.ChessPosition;
 import websocket.ServerMessageObserver;
 import websocket.WebSocketCommunicator;
+import websocket.commands.MakeMoveCommand;
 import websocket.commands.UserGameCommand;
 import websocket.messages.ErrorMessage;
 import websocket.messages.LoadGameMessage;
@@ -169,27 +170,26 @@ public class GamePlayUI implements ServerMessageObserver {
     }
 
     private void handleMove(String[] tokens) throws Exception{
-        if(tokens.length == 3){
-            String startPositionCommand = tokens[1];
-            String endPositionCommand = tokens[2];
-
-            ChessPosition startPosition = parsePosition(startPositionCommand);
-            ChessPosition endPosition = parsePosition(endPositionCommand);
-
-            ChessMove move = new ChessMove(startPosition,endPosition,null);
-
-            UserGameCommand commandMove = new UserGameCommand(
-                    UserGameCommand.CommandType.MAKE_MOVE,
-                    authToken,
-                    gameID
-            );
-            webSocketCommunicator.send(commandMove);
-            System.out.println("Your move was made");
-
-        } else {
-            System.out.println("Unknown command. Type 'help' for options.");
+        if(tokens.length != 3){
+            System.out.println("USAGE: move <FROM> <TO> (e.g., move e2 e4)");
             return;
         }
+
+        String startPositionCommand = tokens[1];
+        String endPositionCommand = tokens[2];
+
+        ChessPosition startPosition = parsePosition(startPositionCommand);
+        ChessPosition endPosition = parsePosition(endPositionCommand);
+
+        ChessMove move = new ChessMove(startPosition,endPosition,null);
+
+        MakeMoveCommand moveCommand = new MakeMoveCommand(
+                authToken,
+                gameID,
+                move
+        );
+        webSocketCommunicator.send(moveCommand);
+
     }
 
     private void handleHighlight(String[] tokens){
