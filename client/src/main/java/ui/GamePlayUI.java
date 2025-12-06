@@ -12,6 +12,8 @@ import websocket.messages.LoadGameMessage;
 import websocket.messages.NotificationMessage;
 import websocket.messages.ServerMessage;
 
+import java.util.HashMap;
+import java.util.Map;
 import java.util.Scanner;
 
 import static ui.EscapeSequences.*;
@@ -197,8 +199,13 @@ public class GamePlayUI implements ServerMessageObserver {
     }
 
     private ChessPosition parsePosition(String position){
+        char columnChar = position.charAt(0);
+        char rowChar = position.charAt(1);
 
-        return null;
+        int column = (columnChar - 'a') + 1;
+        int row = Character.getNumericValue(rowChar);
+
+        return new ChessPosition(row, column);
     }
 
 }
