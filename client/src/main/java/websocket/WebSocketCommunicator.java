@@ -2,6 +2,8 @@ package websocket;
 
 import com.google.gson.Gson;
 import jakarta.websocket.*;
+import websocket.commands.UserGameCommand;
+import websocket.messages.ServerMessage;
 
 import java.net.URI;
 
@@ -26,7 +28,14 @@ public class WebSocketCommunicator extends Endpoint {
         this.session.addMessageHandler(new MessageHandler.Whole<String>(){
            @Override
            public void onMessage(String message){
+               try{
+                   //Parse JSON into ServerMessage and Notify the GameplayUI
+                   ServerMessage serverMessage = gson.fromJson(message, ServerMessage.class);
+                   observer.notify(serverMessage);
 
+               } catch (Exception e){
+                   System.err.println("Error handling message: " + e.getMessage());
+               }
            }
         });
 
@@ -34,5 +43,10 @@ public class WebSocketCommunicator extends Endpoint {
     @Override
     public void onOpen(Session session, EndpointConfig endpointConfig) {
 
+    }
+
+    public void send(UserGameCommand command) throws Exception{
+        String jsonCommand = gson.toJson(command);
+        session.getBasicRemote().sendText(jsonCommand);
     }
 }
