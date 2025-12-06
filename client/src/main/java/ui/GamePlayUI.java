@@ -1,6 +1,8 @@
 package ui;
 
 import chess.ChessGame;
+import chess.ChessMove;
+import chess.ChessPosition;
 import websocket.ServerMessageObserver;
 import websocket.WebSocketCommunicator;
 import websocket.commands.UserGameCommand;
@@ -166,12 +168,37 @@ public class GamePlayUI implements ServerMessageObserver {
 
     }
 
-    private void handleMove(String[] tokens){
+    private void handleMove(String[] tokens) throws Exception{
+        if(tokens.length == 3){
+            String startPositionCommand = tokens[1];
+            String endPositionCommand = tokens[2];
 
+            ChessPosition startPosition = parsePosition(startPositionCommand);
+            ChessPosition endPosition = parsePosition(endPositionCommand);
+
+            ChessMove move = new ChessMove(startPosition,endPosition,null);
+
+            UserGameCommand commandMove = new UserGameCommand(
+                    UserGameCommand.CommandType.MAKE_MOVE,
+                    authToken,
+                    gameID
+            );
+            webSocketCommunicator.send(commandMove);
+            System.out.println("Your move was made");
+
+        } else {
+            System.out.println("Unknown command. Type 'help' for options.");
+            return;
+        }
     }
 
     private void handleHighlight(String[] tokens){
 
+    }
+
+    private ChessPosition parsePosition(String position){
+
+        return null;
     }
 
 }
