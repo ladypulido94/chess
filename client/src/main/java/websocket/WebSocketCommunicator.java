@@ -3,6 +3,9 @@ package websocket;
 import com.google.gson.Gson;
 import jakarta.websocket.*;
 import websocket.commands.UserGameCommand;
+import websocket.messages.ErrorMessage;
+import websocket.messages.LoadGameMessage;
+import websocket.messages.NotificationMessage;
 import websocket.messages.ServerMessage;
 
 import java.net.URI;
@@ -30,7 +33,13 @@ public class WebSocketCommunicator extends Endpoint {
            public void onMessage(String message){
                try{
                    //Parse JSON into ServerMessage and Notify the GameplayUI
-                   ServerMessage serverMessage = gson.fromJson(message, ServerMessage.class);
+                   ServerMessage baseMessage = gson.fromJson(message, ServerMessage.class);
+                   ServerMessage serverMessage = switch (baseMessage.getServerMessageType()) {
+                       case LOAD_GAME -> gson.fromJson(message, LoadGameMessage.class);
+                       case ERROR -> gson.fromJson(message, ErrorMessage.class);
+                       case NOTIFICATION -> gson.fromJson(message, NotificationMessage.class);
+                   };
+
                    observer.notify(serverMessage);
 
                } catch (Exception e){
@@ -40,13 +49,22 @@ public class WebSocketCommunicator extends Endpoint {
         });
 
     }
+
     @Override
     public void onOpen(Session session, EndpointConfig endpointConfig) {
-
+        System.out.println("WebSocket connection established");
     }
 
+    //Converts the GamePlayUI command into a string for the webSocket
     public void send(UserGameCommand command) throws Exception{
         String jsonCommand = gson.toJson(command);
         session.getBasicRemote().sendText(jsonCommand);
+    }
+
+    //Close the connection
+    public void close() throws Exception{
+        if(session != null && session.isOpen()){
+            session.close();;
+        }
     }
 }
