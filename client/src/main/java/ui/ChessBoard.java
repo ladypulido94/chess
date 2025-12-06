@@ -1,8 +1,11 @@
 package ui;
 
 import chess.ChessGame;
+import chess.ChessMove;
 import chess.ChessPiece;
 import chess.ChessPosition;
+
+import java.util.Collection;
 
 import static ui.EscapeSequences.*;
 
@@ -11,28 +14,30 @@ public class ChessBoard {
     private static final String DARK_SQUARE = SET_BG_COLOR_DARK_GREEN;
     private static final String BORDER_COLOR = SET_BG_COLOR_LIGHT_GREY;
 
-    /**
-     * Draws the chess board from white's perspective
-     */
     public static void drawWhiteBoard(ChessGame game){
+        drawWhiteBoard(game, null);
+    }
+
+    public static void drawWhiteBoard(ChessGame game, Collection<ChessMove> moves){
         boolean whiteAtBottom = true;
         drawColumnHeaders(whiteAtBottom);
 
         for (int i = 8; i >= 1; i--){
-            drawRow(i, game, whiteAtBottom);
+            drawRow(i, game, whiteAtBottom, moves);
         }
         drawColumnHeaders(whiteAtBottom);
     }
 
-    /**
-     * Draws the chess board from black's perspective
-     */
     public static void drawBlackBoard(ChessGame game){
+        drawBlackBoard(game, null);
+    }
+
+    public static void drawBlackBoard(ChessGame game, Collection<ChessMove> moves){
         boolean whiteAtBottom = false;
         drawColumnHeaders(whiteAtBottom);
 
         for(int i = 1; i <= 8; i++){
-            drawRow(i, game, whiteAtBottom);
+            drawRow(i, game, whiteAtBottom, moves);
         }
 
         drawColumnHeaders(whiteAtBottom);
@@ -57,7 +62,7 @@ public class ChessBoard {
         System.out.println(RESET_BG_COLOR);
     }
 
-    private static void drawRow(int row, ChessGame game, boolean whiteAtBottom){
+    private static void drawRow(int row, ChessGame game, boolean whiteAtBottom, Collection<ChessMove> moves){
         System.out.print(BORDER_COLOR + " " + row + " " + RESET_BG_COLOR);
 
         if(whiteAtBottom){
