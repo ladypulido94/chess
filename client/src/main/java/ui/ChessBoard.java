@@ -65,26 +65,24 @@ public class ChessBoard {
     private static void drawRow(int row, ChessGame game, boolean whiteAtBottom, Collection<ChessMove> moves){
         System.out.print(BORDER_COLOR + " " + row + " " + RESET_BG_COLOR);
 
-        if(whiteAtBottom){
-            for(int col = 1; col <= 8; col++){
-                String squareColor = getSquareColor(row, col);
-                ChessPosition position = new ChessPosition(row, col);
-                ChessPiece piece = game.getBoard().getPiece(position);
-                String pieceSymbol = getPieceSymbol(piece);
+        int startColumn = whiteAtBottom ? 1 : 8;
+        int endColumn = whiteAtBottom ? 8 : 1;
+        int step = whiteAtBottom ? 1 : -1;
 
-                System.out.print(squareColor + pieceSymbol + RESET_BG_COLOR);
+        for(int col = startColumn; whiteAtBottom ? (col <= endColumn) : (col >= endColumn); col += step){
+            String squareColor;
 
+            if(shouldHighlight(row, col, moves)){
+                squareColor = ((row + col) % 2 == 1) ? SET_BG_COLOR_GREEN : SET_BG_COLOR_DARK_GREEN;
+            } else {
+                squareColor = getSquareColor(row, col);
             }
-        } else {
-            for(int col = 8; col >= 1; col--){
-                String squareColor = getSquareColor(row, col);
-                ChessPosition position = new ChessPosition(row, col);
-                ChessPiece piece = game.getBoard().getPiece(position);
-                String pieceSymbol = getPieceSymbol(piece);
 
-                System.out.print(squareColor + pieceSymbol + RESET_BG_COLOR);
+            ChessPosition position = new ChessPosition(row, col);
+            ChessPiece piece = game.getBoard().getPiece(position);
+            String pieceSymbol = getPieceSymbol(piece);
 
-            }
+            System.out.print(squareColor + pieceSymbol + RESET_BG_COLOR);
         }
 
         System.out.print(BORDER_COLOR + " " + row + " " + RESET_BG_COLOR);
@@ -128,5 +126,21 @@ public class ChessBoard {
         }
 
         return EMPTY;
+    }
+
+    private static boolean shouldHighlight(int row, int col, Collection<ChessMove> moves){
+        if(moves == null || moves.isEmpty()){
+            return false;
+        }
+
+        ChessPosition position = new ChessPosition(row, col);
+        for(ChessMove move: moves){
+            if(move.getStartPosition().equals(position) ||
+            move.getEndPosition().equals(position)){
+                return true;
+            }
+        }
+
+        return false;
     }
 }
