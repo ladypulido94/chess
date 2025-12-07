@@ -145,7 +145,10 @@ public class PostLoginUI {
             facade.joinGame(authData.authToken(), game.gameID(), playerColor);
             System.out.println("Joined game as " + playerColor);
 
-            WebSocketCommunicator webSocketCommunicator = new WebSocketCommunicator(facade.)
+            WebSocketCommunicator webSocketCommunicator = new WebSocketCommunicator(facade.getServerUrl(), null);
+            GamePlayUI gamePlayUI = new GamePlayUI(webSocketCommunicator, authData.authToken(), game.gameID(), playerColor);
+            webSocketCommunicator.setObserver(gamePlayUI);
+            gamePlayUI.run();
 
         } catch (Exception e){
             System.out.println("Join failed: " + e.getMessage());
@@ -173,7 +176,11 @@ public class PostLoginUI {
             GameData game = games.get(gameNumber - 1);
             System.out.println("Observing game: " + game.gameName());
 
-            ChessBoard.drawWhiteBoard(game.game());
+            WebSocketCommunicator webSocketCommunicator = new WebSocketCommunicator(facade.getServerUrl(), null);
+            GamePlayUI gamePlayUI = new GamePlayUI(webSocketCommunicator, authData.authToken(), game.gameID(), null);
+            webSocketCommunicator.setObserver(gamePlayUI);
+            gamePlayUI.run();
+
         } catch (Exception e) {
             System.out.println("Observe failed: " + e.getMessage());
         }

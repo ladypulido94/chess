@@ -40,14 +40,12 @@ public class WebSocketHandler {
     @OnWebSocketClose
     public void onClose(WsCloseContext ctx){
         System.out.println("WebSocket closed: " + ctx.session);
-        //TODO: Remove from connections map
 
     }
 
     @OnWebSocketMessage
     public void onMessage(WsMessageContext ctx){
         System.out.println("Received: " + ctx.message());
-        //TODO: Parse message, handle command
         try {
             UserGameCommand command = gson.fromJson(ctx.message(), UserGameCommand.class);
 
