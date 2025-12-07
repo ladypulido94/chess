@@ -42,7 +42,10 @@ public class Server {
 
         WebSocketHandler webSocketHandler = new WebSocketHandler(mySQLDataAccess);
         javalin.ws("/ws", ws -> {
-            ws.onConnect(webSocketHandler::onConnect);
+            ws.onConnect(ctx -> {
+                ctx.session.setIdleTimeout(java.time.Duration.ofMinutes(10));
+                webSocketHandler.onConnect(ctx);
+                    });
             ws.onMessage(webSocketHandler::onMessage);
             ws.onClose(webSocketHandler::onClose);
             ws.onError(webSocketHandler::onError);

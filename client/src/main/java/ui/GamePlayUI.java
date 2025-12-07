@@ -1,21 +1,11 @@
 package ui;
 
-import chess.ChessGame;
-import chess.ChessMove;
-import chess.ChessPosition;
-import websocket.ServerMessageObserver;
-import websocket.WebSocketCommunicator;
-import websocket.commands.MakeMoveCommand;
-import websocket.commands.UserGameCommand;
-import websocket.messages.ErrorMessage;
-import websocket.messages.LoadGameMessage;
-import websocket.messages.NotificationMessage;
-import websocket.messages.ServerMessage;
+import chess.*;
+import websocket.*;
+import websocket.commands.*;
+import websocket.messages.*;
 
-import java.util.Collection;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Scanner;
+import java.util.*;
 
 import static ui.EscapeSequences.*;
 
@@ -34,8 +24,8 @@ public class GamePlayUI implements ServerMessageObserver {
         this.authToken= authToken;
         this.gameID = gameID;
         this.playerColor = playerColor;
-        scanner = new Scanner(System.in);
-        running = true;
+        this.scanner = new Scanner(System.in);
+        this.running = true;
 
     }
 
@@ -66,7 +56,7 @@ public class GamePlayUI implements ServerMessageObserver {
 
         //Game Loop
         while(running){
-            System.out.println(SET_TEXT_COLOR_GREEN + "[IN_GAME] >>> " + RESET_TEXT_COLOR);
+            System.out.print(SET_TEXT_COLOR_GREEN + "[IN_GAME] >>> " + RESET_TEXT_COLOR);
             String input = scanner.nextLine().trim();
 
             if(input.isEmpty()){
@@ -110,7 +100,7 @@ public class GamePlayUI implements ServerMessageObserver {
 
     //Print notification in yellow
     private void handleNotification(NotificationMessage message){
-        System.out.println(SET_TEXT_COLOR_YELLOW + message.getNotificationMessage() + RESET_TEXT_COLOR);
+        System.out.println(SET_TEXT_COLOR_YELLOW + message.getMessage() + RESET_TEXT_COLOR);
 
     }
 
@@ -204,6 +194,12 @@ public class GamePlayUI implements ServerMessageObserver {
             System.out.println("Usage: highlight <POSITION> (e.g., highlight e4)");
             return;
         }
+
+        if(currentGame == null){
+            System.out.println("Game not loaded yet. Please wait a moment.");
+            return;
+        }
+
         ChessPosition position = parsePosition(tokens[1]);
         Collection<ChessMove> validMoves = currentGame.validMoves(position);
 
@@ -211,7 +207,7 @@ public class GamePlayUI implements ServerMessageObserver {
             System.out.println("No piece at that position or no valid moves.");
             return;
         }
-        drawBoard();
+        drawBoard(validMoves);
     }
 
     private ChessPosition parsePosition(String position){

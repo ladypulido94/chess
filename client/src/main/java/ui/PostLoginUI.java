@@ -1,8 +1,7 @@
 package ui;
 
 import facade.ServerFacade;
-import model.AuthData;
-import model.GameData;
+import model.*;
 import websocket.WebSocketCommunicator;
 
 import java.util.ArrayList;
@@ -146,6 +145,7 @@ public class PostLoginUI {
             System.out.println("Joined game as " + playerColor);
 
             WebSocketCommunicator webSocketCommunicator = new WebSocketCommunicator(facade.getServerUrl(), null);
+            Thread.sleep(500);
             GamePlayUI gamePlayUI = new GamePlayUI(webSocketCommunicator, authData.authToken(), game.gameID(), playerColor);
             webSocketCommunicator.setObserver(gamePlayUI);
             gamePlayUI.run();

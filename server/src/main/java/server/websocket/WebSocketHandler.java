@@ -1,31 +1,19 @@
 package server.websocket;
 
-import chess.ChessGame;
-import chess.ChessMove;
-import chess.ChessPosition;
+import chess.*;
 import com.google.gson.Gson;
-import dataaccess.DataAccess;
-import dataaccess.DataAccessException;
-import io.javalin.websocket.WsCloseContext;
-import io.javalin.websocket.WsConnectContext;
-import io.javalin.websocket.WsErrorContext;
-import io.javalin.websocket.WsMessageContext;
-import model.AuthData;
-import model.GameData;
+import dataaccess.*;
+import io.javalin.websocket.*;
+import model.*;
 import org.eclipse.jetty.websocket.api.Session;
 import org.eclipse.jetty.websocket.api.annotations.*;
-import websocket.commands.MakeMoveCommand;
-import websocket.commands.UserGameCommand;
-import websocket.messages.ErrorMessage;
-import websocket.messages.LoadGameMessage;
-import websocket.messages.NotificationMessage;
-import websocket.messages.ServerMessage;
+import websocket.commands.*;
+import websocket.messages.*;
 
 import java.io.IOException;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
-@WebSocket
 public class WebSocketHandler {
     private final Map<String, Session> connections = new ConcurrentHashMap<>();
     private final Map<String, Integer> connectionGames = new ConcurrentHashMap<>();
@@ -36,18 +24,15 @@ public class WebSocketHandler {
         this.dataAccess = dataAccess;
     }
 
-    @OnWebSocketConnect
     public void onConnect(WsConnectContext ctx){
         System.out.println("Websocket connected: " + ctx.session);
     }
 
-    @OnWebSocketClose
     public void onClose(WsCloseContext ctx){
         System.out.println("WebSocket closed: " + ctx.session);
 
     }
 
-    @OnWebSocketMessage
     public void onMessage(WsMessageContext ctx){
         System.out.println("Received: " + ctx.message());
         try {
@@ -55,7 +40,10 @@ public class WebSocketHandler {
 
             switch(command.getCommandType()){
                 case CONNECT -> handleConnect(ctx.session, command);
-                case MAKE_MOVE -> handleMakeMove(ctx.session, command);
+                case MAKE_MOVE -> {
+                    MakeMoveCommand moveCommand = gson.fromJson(ctx.message(), MakeMoveCommand.class);
+                    handleMakeMove(ctx.session, moveCommand);
+                }
                 case LEAVE -> handleLeave(ctx.session, command);
                 case RESIGN -> handleResign(ctx.session, command);
             }
@@ -69,7 +57,6 @@ public class WebSocketHandler {
         }
     }
 
-    @OnWebSocketError
     public void onError(WsErrorContext ctx){
         System.err.println("Websocket error: " + ctx.error().getMessage());
     }
