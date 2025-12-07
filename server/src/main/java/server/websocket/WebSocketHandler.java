@@ -135,6 +135,31 @@ public class WebSocketHandler {
     }
 
     private void handleLeave(Session session, UserGameCommand command) throws IOException, DataAccessException{
+        String authToken = command.getAuthToken();
+        int gameID = command.getGameID();
+
+        AuthData token = dataAccess.getAuthToken(authToken);
+        if(token == null){
+            sendMessage(session, new ErrorMessage("Error: Invalid auth token"));
+            return;
+        }
+
+        GameData game = dataAccess.getGame(gameID);
+        if(game == null){
+            String username = token.username();
+
+            if(username.equals(game.whiteUsername())){
+                dataAccess.updateGame(new GameData(gameID, null, game.blackUsername(), game.gameName(), game.game()));
+
+            } else if (username.equals(game.blackUsername())) {
+                dataAccess.updateGame(new GameData(gameID, game.whiteUsername(), null, game.gameName(), game.game()));
+            }
+
+            broadcastToGame(gameID, new NotificationMessage(username + " left the game"), session);
+        }
+
+        connections.remove(authToken);
+        connectionGames.remove(authToken);
 
     }
 
