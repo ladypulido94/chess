@@ -3,6 +3,7 @@ package ui;
 import facade.ServerFacade;
 import model.AuthData;
 import model.GameData;
+import websocket.WebSocketCommunicator;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -136,7 +137,7 @@ public class PostLoginUI {
             String playerColor = tokens[2].toUpperCase();
 
             if(!playerColor.equals("WHITE") && !playerColor.equals("BLACK")){
-                System.out.println("Invalid color. use WHITE or BLACK.");
+                System.out.println("Invalid color. Use WHITE or BLACK.");
                 return;
             }
 
@@ -144,11 +145,7 @@ public class PostLoginUI {
             facade.joinGame(authData.authToken(), game.gameID(), playerColor);
             System.out.println("Joined game as " + playerColor);
 
-            if (playerColor.equals("WHITE")){
-                ChessBoard.drawWhiteBoard(game.game());
-            } else {
-                ChessBoard.drawBlackBoard(game.game());
-            }
+            WebSocketCommunicator webSocketCommunicator = new WebSocketCommunicator(facade.)
 
         } catch (Exception e){
             System.out.println("Join failed: " + e.getMessage());

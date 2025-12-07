@@ -13,7 +13,7 @@ import java.net.URI;
 @ClientEndpoint
 public class WebSocketCommunicator extends Endpoint {
     private Session session;
-    private final ServerMessageObserver observer;
+    private ServerMessageObserver observer;
     private final Gson gson = new Gson();
 
     public WebSocketCommunicator(String url, ServerMessageObserver observer) throws  Exception{
@@ -40,7 +40,9 @@ public class WebSocketCommunicator extends Endpoint {
                        case NOTIFICATION -> gson.fromJson(message, NotificationMessage.class);
                    };
 
-                   observer.notify(serverMessage);
+                   if(observer != null){
+                       observer.notify(serverMessage);
+                   }
 
                } catch (Exception e){
                    System.err.println("Error handling message: " + e.getMessage());
@@ -66,5 +68,9 @@ public class WebSocketCommunicator extends Endpoint {
         if(session != null && session.isOpen()){
             session.close();;
         }
+    }
+
+    public void setObserver(ServerMessageObserver observer){
+        this.observer = observer;
     }
 }

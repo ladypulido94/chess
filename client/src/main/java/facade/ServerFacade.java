@@ -26,6 +26,10 @@ public class ServerFacade {
         this.serverUrl = "http://localhost:" + port;
     }
 
+    public String getServerUrl(){
+        return serverUrl;
+    }
+
     /**
      * Registers a new user
      * @param username the user's username
