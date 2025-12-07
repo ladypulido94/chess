@@ -10,15 +10,12 @@ public class BishopMovesCalculator implements PieceMovesCalculator {
         Collection<ChessMove> moves = new ArrayList<>();
         ChessGame.TeamColor color = board.getPiece(position).getTeamColor();
 
-        //Up-right = (1,1)
-        //Up-left = (1,-1)
-        //Down-right = (-1,1)
-        //Down-left = (-1,-1)
+
         int[][] directions = {
                 {1,1},{-1,1},{-1,-1},{1,-1}
         };
 
-        //TO DO: Loop trough each direction
+
         for (int[] direction : directions) {
             int rowDelta = direction[0];
             int colDelta = direction[1];
