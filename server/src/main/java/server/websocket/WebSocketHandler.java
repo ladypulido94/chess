@@ -1,5 +1,8 @@
 package server.websocket;
 
+import chess.ChessGame;
+import chess.ChessMove;
+import chess.ChessPosition;
 import com.google.gson.Gson;
 import dataaccess.DataAccess;
 import dataaccess.DataAccessException;
@@ -11,6 +14,7 @@ import model.AuthData;
 import model.GameData;
 import org.eclipse.jetty.websocket.api.Session;
 import org.eclipse.jetty.websocket.api.annotations.*;
+import websocket.commands.MakeMoveCommand;
 import websocket.commands.UserGameCommand;
 import websocket.messages.ErrorMessage;
 import websocket.messages.LoadGameMessage;
@@ -131,6 +135,61 @@ public class WebSocketHandler {
     }
 
     private void handleMakeMove(Session session, UserGameCommand command) throws  IOException, DataAccessException{
+        String authToken = command.getAuthToken();
+        Integer gameID = command.getGameID();
+
+        AuthData token = dataAccess.getAuthToken(authToken);
+        if(token == null){
+            sendMessage(session, new ErrorMessage("Error: Invalid auth token"));
+            return;
+        }
+
+        MakeMoveCommand moveCommand = (MakeMoveCommand) command;
+        ChessMove move = moveCommand.getMove();
+
+        GameData game = dataAccess.getGame(gameID);
+        if(game == null){
+            sendMessage(session, new ErrorMessage("Game not found"));
+            return;
+        }
+
+        String username = token.username();
+        ChessGame chessGame = game.game();
+
+        ChessGame.TeamColor currentTurn = chessGame.getTeamTurn();
+        boolean isWhitePlayer = username.equals(game.whiteUsername());
+        boolean isBlackPlayer = username.equals(game.blackUsername());
+
+        if((currentTurn == ChessGame.TeamColor.WHITE && !isWhitePlayer) ||
+                (currentTurn == ChessGame.TeamColor.BLACK && !isBlackPlayer)){
+            sendMessage(session, new ErrorMessage("Error: Not your turn"));
+            return;
+        }
+
+        try{
+            chessGame.makeMove(move);
+            dataAccess.updateGame(game);
+            broadcastToGame(gameID, new LoadGameMessage(chessGame), null);
+
+            String moveDescription = formatMove(move);
+            String notification = username + " moved " + moveDescription;
+            broadcastToGame(gameID, new NotificationMessage(notification), session);
+
+            ChessGame.TeamColor opponentColor = (currentTurn == ChessGame.TeamColor.WHITE)
+                    ? ChessGame.TeamColor.BLACK : ChessGame.TeamColor.WHITE;
+
+            if(chessGame.isInCheckmate(opponentColor)){
+                broadcastToGame(gameID, new NotificationMessage(opponentColor + " is in checkmate! " + username + " wins!"), null);
+            } else if (chessGame.isInStalemate(opponentColor)) {
+                broadcastToGame(gameID, new NotificationMessage("Stalemate! Game is a draw."), null);
+            } else if (chessGame.isInCheck(opponentColor)){
+                broadcastToGame(gameID, new NotificationMessage(opponentColor + " is in check!"), null);
+            }
+
+
+        } catch (Exception e) {
+            sendMessage(session, new ErrorMessage("Error: Invalid move - " + e.getMessage()));
+        }
 
     }
 
@@ -188,6 +247,15 @@ public class WebSocketHandler {
 
         String notification = username + " has resigned. Game Over";
         broadcastToGame(gameID, new NotificationMessage(notification), null);
+    }
+
+    private String formatMove(ChessMove move){
+        return positionToNotation(move.getStartPosition()) + " to " + positionToNotation(move.getEndPosition());
+    }
+
+    private String positionToNotation(ChessPosition position){
+        char col = (char) ('a' + position.getColumn() - 1);
+        return "" + col + position.getRow();
     }
 
 }
