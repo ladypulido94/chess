@@ -136,7 +136,7 @@ public class WebSocketHandler {
 
     private void handleLeave(Session session, UserGameCommand command) throws IOException, DataAccessException{
         String authToken = command.getAuthToken();
-        int gameID = command.getGameID();
+        Integer gameID = command.getGameID();
 
         AuthData token = dataAccess.getAuthToken(authToken);
         if(token == null){
@@ -164,7 +164,30 @@ public class WebSocketHandler {
     }
 
     private void handleResign(Session session, UserGameCommand command) throws IOException, DataAccessException{
+        String authToken = command.getAuthToken();
+        Integer gameID = command.getGameID();
 
+        AuthData token = dataAccess.getAuthToken(authToken);
+        if(token == null){
+            sendMessage(session, new ErrorMessage("Error: Invalid auth token"));
+            return;
+        }
+
+        GameData game = dataAccess.getGame(gameID);
+        if(game == null){
+            sendMessage(session, new ErrorMessage("Error: Game not found"));
+            return;
+        }
+
+        String username = token.username();
+
+        if(!username.equals(game.whiteUsername()) && !username.equals(game.blackUsername())){
+            sendMessage(session, new ErrorMessage("Error: Observers cannot resign"));
+            return;
+        }
+
+        String notification = username + " has resigned. Game Over";
+        broadcastToGame(gameID, new NotificationMessage(notification), null);
     }
 
 }
