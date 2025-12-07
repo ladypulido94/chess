@@ -17,6 +17,7 @@ import java.util.concurrent.ConcurrentHashMap;
 public class WebSocketHandler {
     private final Map<String, Session> connections = new ConcurrentHashMap<>();
     private final Map<String, Integer> connectionGames = new ConcurrentHashMap<>();
+    private final Map<Integer, Boolean> gameOverStatus = new ConcurrentHashMap<>();
     private final Gson gson = new Gson();
     private final DataAccess dataAccess;
 
@@ -122,8 +123,14 @@ public class WebSocketHandler {
     }
 
     private void handleMakeMove(Session session, UserGameCommand command) throws  IOException, DataAccessException{
+
         String authToken = command.getAuthToken();
         Integer gameID = command.getGameID();
+
+        if(gameOverStatus.getOrDefault(gameID, false)){
+            sendMessage(session, new ErrorMessage("Error: Game is over"));
+            return;
+        }
 
         AuthData token = dataAccess.getAuthToken(authToken);
         if(token == null){
@@ -191,7 +198,7 @@ public class WebSocketHandler {
         }
 
         GameData game = dataAccess.getGame(gameID);
-        if(game == null){
+        if(game != null){
             String username = token.username();
 
             if(username.equals(game.whiteUsername())){
@@ -225,12 +232,19 @@ public class WebSocketHandler {
             return;
         }
 
+        if(gameOverStatus.getOrDefault(gameID, false)){
+            sendMessage(session, new ErrorMessage("Error: Game is already over"));
+            return;
+        }
+
         String username = token.username();
 
         if(!username.equals(game.whiteUsername()) && !username.equals(game.blackUsername())){
             sendMessage(session, new ErrorMessage("Error: Observers cannot resign"));
             return;
         }
+
+        gameOverStatus.put(gameID,true);
 
         String notification = username + " has resigned. Game Over";
         broadcastToGame(gameID, new NotificationMessage(notification), null);
